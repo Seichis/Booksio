@@ -1,0 +1,51 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.2"
+
+    defaultConfig {
+        applicationId "com.kmpdip.booksio"
+        minSdkVersion 15
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    packagingOptions {
+        exclude 'META-INF/MANIFEST.MF'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/notice.txt'
+    }
+}
+
+dependencies {
+
+    testCompile 'junit:junit:4.12'
+    compile 'com.android.support:appcompat-v7:23.0.1'
+    compile 'com.android.support:design:23.0.1'
+    compile fileTree(dir: 'libs', include: 'weka.jar')
+    compile 'com.astuetz:pagerslidingtabstrip:1.0.1'
+
+//    compile 'net.schmizz:sshj:0.10.0'
+
+    compile('org.simpleframework:simple-xml:2.7.1') {
+
+        exclude group: 'stax', module: 'stax-api'
+        exclude group: 'xpp3', module: 'xpp3'
+    }
+    compile 'org.springframework.android:spring-android-rest-template:2.0.0.M1'
+
+
+}
+repositories {
+    maven {
+        url 'http://repo.spring.io/milestone'
+    }
+}
