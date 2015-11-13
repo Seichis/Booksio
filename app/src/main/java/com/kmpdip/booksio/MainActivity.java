@@ -3,22 +3,28 @@ package com.kmpdip.booksio;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.astuetz.PagerSlidingTabStrip;
 import com.kmpdip.booksio.data.database.DBCDatabase;
 import com.kmpdip.booksio.data.structure.Book;
+import com.kmpdip.booksio.fragments.FragmentAdapter;
+import com.kmpdip.booksio.fragments.RecommendationsFragment;
 import com.kmpdip.booksio.onlineoperations.BookFromXml;
 
 import java.util.ArrayList;
@@ -31,6 +37,8 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private static Context context;
+    // Initialize fragment resources
+    private final Handler handler = new Handler();
     TextView mTextView;
     List<String> randomBooks = Arrays.asList("870970-basis:27069703", "870970-basis:51039629", "870970-basis:50653463", "870970-basis:05636078", "870970-basis:28410352",
             "870970-basis:23461854",
@@ -44,6 +52,9 @@ public class MainActivity extends AppCompatActivity
             "870970-basis:42511773");
     //this is the class that the user belongs to
     String userClass = "3";
+    private PagerSlidingTabStrip tabs;
+    private ViewPager pager;
+    private FragmentAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +62,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        context=this;
+        context = this;
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -70,10 +81,31 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+
+        tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
+        pager = (ViewPager) findViewById(R.id.pager);
+        adapter = new FragmentAdapter(getSupportFragmentManager());
+
+        pager.setAdapter(adapter);
+
+        final int pageMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, getResources()
+                .getDisplayMetrics());
+        pager.setPageMargin(pageMargin);
+
+        tabs.setViewPager(pager);
+
+
         mTextView = (TextView) findViewById(R.id.text_view_1);
 
         DatabaseTask task = new DatabaseTask();
         task.execute();
+
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
 
     }
 
@@ -110,12 +142,21 @@ public class MainActivity extends AppCompatActivity
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
+        } else if (id == R.id.action_recommendations) {
+            RecommendationsFragment dialog = new RecommendationsFragment();
+            dialog.show(getSupportFragmentManager(), "RecommendationsFragment");
+            return true;
+        } else if (id == R.id.action_library) {
+            RecommendationsFragment dialog = new RecommendationsFragment();
+            dialog.show(getSupportFragmentManager(), "RecommendationsFragment");
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
+
+    //    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
@@ -140,6 +181,17 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+    }
 
     private class DatabaseTask extends AsyncTask {
 
@@ -168,4 +220,5 @@ public class MainActivity extends AppCompatActivity
             return response;
         }
     }
+
 }
