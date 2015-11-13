@@ -1,6 +1,6 @@
 package com.kmpdip.booksio;
 
-import android.database.Cursor;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -30,16 +30,9 @@ import java.util.Map;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private Cursor books;
-    private DBCDatabase db;
-    private BookFromXml xmlResponse;
+    private static Context context;
     TextView mTextView;
-    List<String> randomBooks= Arrays.asList("870970-basis:27069703", "870970-basis:51039629", "870970-basis:50653463");
-    HashMap<String, String> bookInfo = new HashMap<String, String>();
-    //this is the class that the user belongs to
-    String userClass="2";
-
-    List<String> mStringList = Arrays.asList("870970-basis:05636078", "870970-basis:28410352",
+    List<String> randomBooks = Arrays.asList("870970-basis:27069703", "870970-basis:51039629", "870970-basis:50653463", "870970-basis:05636078", "870970-basis:28410352",
             "870970-basis:23461854",
             "870970-basis:21526231",
             "870970-basis:26527988",
@@ -49,7 +42,8 @@ public class MainActivity extends AppCompatActivity
             "870970-basis:50653463",
             "870970-basis:51041631",
             "870970-basis:42511773");
-    List<Book> mBooks = new ArrayList<>();
+    //this is the class that the user belongs to
+    String userClass = "2";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +51,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        context=this;
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,8 +72,6 @@ public class MainActivity extends AppCompatActivity
 
         mTextView = (TextView) findViewById(R.id.text_view_1);
 
-        db = new DBCDatabase(this);
-        xmlResponse = BookFromXml.getInstance();
         DatabaseTask task = new DatabaseTask();
         task.execute();
 
@@ -89,7 +81,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        db.close();
     }
 
     @Override
@@ -150,7 +141,6 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-
     private class DatabaseTask extends AsyncTask {
 
         @Override
@@ -159,18 +149,22 @@ public class MainActivity extends AppCompatActivity
         }
 
         @Override
-        protected List<Map<String, String>> doInBackground(Object[] params) {
+        protected List<HashMap<String, String>> doInBackground(Object[] params) {
             Book book;
+            DBCDatabase db = new DBCDatabase(MainActivity.context);
+            BookFromXml bookFromXml = BookFromXml.getInstance();
             ArrayList books = db.getBooks(userClass, randomBooks);
-            List<Map<String, String>> response = new ArrayList<Map<String, String>>();
+            List<HashMap<String, String>> response = new ArrayList<HashMap<String, String>>();
             for (int j = 0; j < books.size(); j++) {
-                response.add(xmlResponse.consumeWebService((String) books.get(j)));
-                book = xmlResponse.createBookFromXMLResponse(response.get(j));
+                response.add(bookFromXml.consumeWebService((String) books.get(j)));
+                book = bookFromXml.createBookFromXMLResponse(response.get(j));
                 Log.i("BOOK", (String) books.get(j));
             }
             for (Map<String, String> map : response) {
                 Log.i("XMLRESPONSE", map.get("title"));
             }
+            db.close();
+
             return response;
         }
     }
