@@ -1,31 +1,45 @@
 package com.kmpdip.booksio;
 
+import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.view.View;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 
+import com.kmpdip.booksio.data.database.DBCDatabase;
 import com.kmpdip.booksio.data.structure.Book;
-import com.kmpdip.booksio.httpoperations.BookFromXml;
+import com.kmpdip.booksio.onlineoperations.BookFromXml;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    private Cursor books;
+    private DBCDatabase db;
+    private BookFromXml xmlResponse;
     TextView mTextView;
-    List<String> mStringList= Arrays.asList("870970-basis:05636078", "870970-basis:28410352",
+    List<String> randomBooks= Arrays.asList("870970-basis:27069703", "870970-basis:51039629", "870970-basis:50653463");
+    HashMap<String, String> bookInfo = new HashMap<String, String>();
+    //this is the class that the user belongs to
+    String userClass="2";
+
+    List<String> mStringList = Arrays.asList("870970-basis:05636078", "870970-basis:28410352",
             "870970-basis:23461854",
             "870970-basis:21526231",
             "870970-basis:26527988",
@@ -35,7 +49,8 @@ public class MainActivity extends AppCompatActivity
             "870970-basis:50653463",
             "870970-basis:51041631",
             "870970-basis:42511773");
-    List<Book> mBooks=new ArrayList<>();
+    List<Book> mBooks = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,13 +76,21 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        mTextView=(TextView)findViewById(R.id.text_view_1);
-        for (String bookid:mStringList){
-            Book book = BookFromXml.getInstance().createBookFromXMLResponse(bookid);
-            mBooks.add(book);
-        }
-//        Book book = BookFromXml.getInstance().createBookFromXMLResponse("870970-basis:22222880");
-//        mTextView.setText(String.valueOf(book.getTitle()));
+        mTextView = (TextView) findViewById(R.id.text_view_1);
+
+        db = new DBCDatabase(this);
+        xmlResponse = BookFromXml.getInstance();
+        DatabaseTask task = new DatabaseTask();
+        task.execute();
+
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        books.close();
+        db.close();
     }
 
     @Override
@@ -125,5 +148,31 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+
+
+    private class DatabaseTask extends AsyncTask {
+
+        @Override
+        protected void onPostExecute(Object response) {
+            super.onPostExecute(response);
+        }
+
+        @Override
+        protected List<Map<String, String>> doInBackground(Object[] params) {
+            Book book;
+            ArrayList books = db.getBooks(userClass, randomBooks);
+            List<Map<String, String>> response = new ArrayList<Map<String, String>>();
+            for (int j = 0; j < books.size(); j++) {
+                response.add(xmlResponse.consumeWebService((String) books.get(j)));
+                book = xmlResponse.createBookFromXMLResponse(response.get(j));
+                Log.i("BOOK", (String) books.get(j));
+            }
+            for (Map<String, String> map : response) {
+                Log.i("XMLRESPONSE", map.get("title"));
+            }
+            return response;
+        }
     }
 }

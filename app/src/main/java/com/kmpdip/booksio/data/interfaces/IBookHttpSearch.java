@@ -2,7 +2,6 @@ package com.kmpdip.booksio.data.interfaces;
 
 
 import com.kmpdip.booksio.data.structure.Book;
-import com.kmpdip.booksio.httpoperations.BookFromXml;
 
 import org.w3c.dom.Document;
 
