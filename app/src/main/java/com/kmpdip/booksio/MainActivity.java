@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity
             "870970-basis:51041631",
             "870970-basis:42511773");
     //this is the class that the user belongs to
-    String userClass = "2";
+    String userClass = "3";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
