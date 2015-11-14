@@ -21,8 +21,10 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.astuetz.PagerSlidingTabStrip;
+import com.kmpdip.booksio.cards.CardWrapper;
+import com.kmpdip.booksio.cards.MyExpandCard;
 import com.kmpdip.booksio.data.database.DBCDatabase;
-import com.kmpdip.booksio.data.structure.Book;
+import com.kmpdip.booksio.data.structure.Recommendation;
 import com.kmpdip.booksio.fragments.FragmentAdapter;
 import com.kmpdip.booksio.fragments.RecommendationsFragment;
 import com.kmpdip.booksio.onlineoperations.BookFromXml;
@@ -33,10 +35,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import it.gmariotti.cardslib.library.internal.Card;
+import it.gmariotti.cardslib.library.internal.ViewToClickToExpand;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-
-    private static Context context;
+    public Context context;
+    public List<Recommendation> recommendations = new ArrayList<>();
     // Initialize fragment resources
     private final Handler handler = new Handler();
     TextView mTextView;
@@ -55,14 +60,19 @@ public class MainActivity extends AppCompatActivity
     private PagerSlidingTabStrip tabs;
     private ViewPager pager;
     private FragmentAdapter adapter;
-
+    private static MainActivity mainActivity;
+    public DatabaseTask task;
+    public static MainActivity getInstance(){
+        return mainActivity;
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        context = this;
+        mainActivity=this;
+//        asyncFinished=false;
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -81,7 +91,21 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        createFragments();
 
+
+
+        mTextView = (TextView) findViewById(R.id.text_view_1);
+
+        task = new DatabaseTask();
+        task.execute();
+        Log.i("Async",String.valueOf(task.getStatus()));
+
+
+
+    }
+
+    public void createFragments() {
         tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
         pager = (ViewPager) findViewById(R.id.pager);
         adapter = new FragmentAdapter(getSupportFragmentManager());
@@ -93,14 +117,6 @@ public class MainActivity extends AppCompatActivity
         pager.setPageMargin(pageMargin);
 
         tabs.setViewPager(pager);
-
-
-        mTextView = (TextView) findViewById(R.id.text_view_1);
-
-        DatabaseTask task = new DatabaseTask();
-        task.execute();
-
-
     }
 
     @Override
@@ -142,15 +158,16 @@ public class MainActivity extends AppCompatActivity
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
-        } else if (id == R.id.action_recommendations) {
-            RecommendationsFragment dialog = new RecommendationsFragment();
-            dialog.show(getSupportFragmentManager(), "RecommendationsFragment");
-            return true;
-        } else if (id == R.id.action_library) {
-            RecommendationsFragment dialog = new RecommendationsFragment();
-            dialog.show(getSupportFragmentManager(), "RecommendationsFragment");
-            return true;
         }
+//        else if (id == R.id.action_recommendations) {
+//            RecommendationsFragment dialog = new RecommendationsFragment();
+//            dialog.show(getSupportFragmentManager(), "Recommendations");
+//            return true;
+//        } else if (id == R.id.action_library) {
+//            RecommendationsFragment dialog = new RecommendationsFragment();
+//            dialog.show(getSupportFragmentManager(), "Library");
+//            return true;
+//        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -193,32 +210,35 @@ public class MainActivity extends AppCompatActivity
         super.onRestoreInstanceState(savedInstanceState);
     }
 
-    private class DatabaseTask extends AsyncTask {
+    public class DatabaseTask extends AsyncTask {
 
         @Override
         protected void onPostExecute(Object response) {
             super.onPostExecute(response);
+            MainActivity.getInstance().createFragments();
         }
 
         @Override
         protected List<HashMap<String, String>> doInBackground(Object[] params) {
-            Book book;
-            DBCDatabase db = new DBCDatabase(MainActivity.context);
+            DBCDatabase db = new DBCDatabase(MainActivity.getInstance().getApplicationContext());
             BookFromXml bookFromXml = BookFromXml.getInstance();
             ArrayList books = db.getBooks(userClass, randomBooks);
-            List<HashMap<String, String>> response = new ArrayList<HashMap<String, String>>();
+            List<HashMap<String, String>> response = new ArrayList<>();
+
             for (int j = 0; j < books.size(); j++) {
                 response.add(bookFromXml.consumeWebService((String) books.get(j)));
-                book = bookFromXml.createBookFromXMLResponse(response.get(j));
+                Recommendation book = bookFromXml.createBookFromXMLResponse(response.get(j));
+                recommendations.add(book);
                 Log.i("BOOK", (String) books.get(j));
             }
-            for (Map<String, String> map : response) {
-                Log.i("XMLRESPONSE", map.get("title"));
-            }
+//            for (Map<String, String> map : response) {
+//                Log.i("XMLRESPONSE", map.get("title"));
+//            }
             db.close();
 
             return response;
         }
     }
+
 
 }
