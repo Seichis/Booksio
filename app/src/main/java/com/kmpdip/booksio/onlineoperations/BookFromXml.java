@@ -39,7 +39,7 @@ public class BookFromXml {
     public Recommendation createBookFromXMLResponse(Map<String, String> bookResponse) {
         Recommendation.RecommendationBuilder builder = new Recommendation.RecommendationBuilder();
         Bitmap imageLink=GoogleApiRequest.getInstance().getImage(bookResponse.get("isbn"));
-        Recommendation book = builder.title(bookResponse.get("title")).author(bookResponse.get("author"))
+        Recommendation book = builder.ID(bookResponse.get("id")).title(bookResponse.get("title")).author(bookResponse.get("author"))
                 .description(bookResponse.get("abstract")).date(bookResponse.get("date"))
                 .genre(bookResponse.get("subjects")).image(imageLink).build();
         return book;
@@ -65,6 +65,8 @@ public class BookFromXml {
             is = new ByteArrayInputStream(result.getBytes("UTF-8"));
             builder = factory.newDocumentBuilder();
             dom = builder.parse(is);
+
+            bookValues.put("id", bookid);
 
             bookTitle = getTagContent("dc:title", dom);
             bookValues.put("title", bookTitle);

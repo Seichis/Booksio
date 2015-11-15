@@ -29,6 +29,11 @@ import com.kmpdip.booksio.fragments.FragmentAdapter;
 import com.kmpdip.booksio.fragments.RecommendationsFragment;
 import com.kmpdip.booksio.onlineoperations.BookFromXml;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -63,6 +68,9 @@ public class MainActivity extends AppCompatActivity
     private FragmentAdapter adapter;
     private static MainActivity mainActivity;
     public DatabaseTask task;
+    private static String DB_PATH = "/data/data/com.kmpdip.booksio/database/";
+    private static String DB_NAME ="dbcdatabase.db";
+
     public static MainActivity getInstance(){
         return mainActivity;
     }
@@ -93,8 +101,14 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         createFragments();
-
-
+        File dbFile = new File(DB_PATH + DB_NAME);
+        if (dbFile.exists() == false) {
+            try {
+                copyDataBase();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
         mTextView = (TextView) findViewById(R.id.text_view_1);
 
@@ -118,6 +132,22 @@ public class MainActivity extends AppCompatActivity
         pager.setPageMargin(pageMargin);
 
         tabs.setViewPager(pager);
+    }
+    //methods for creating database in android storage
+    private void copyDataBase() throws IOException
+    {
+        InputStream mInput = getApplicationContext().getAssets().open(DB_NAME);
+        String outFileName = DB_PATH + DB_NAME;
+
+        OutputStream mOutput = new FileOutputStream(outFileName);
+        byte[] mBuffer = new byte[1024];
+        int mLength;
+        while ((mLength = mInput.read(mBuffer)) > 0) {
+            mOutput.write(mBuffer, 0, mLength);
+        }
+        mOutput.flush();
+        mOutput.close();
+        mInput.close();
     }
 
     @Override
