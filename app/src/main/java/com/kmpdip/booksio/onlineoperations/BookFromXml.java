@@ -1,11 +1,15 @@
 package com.kmpdip.booksio.onlineoperations;
 
 
+import android.graphics.Bitmap;
+import android.util.Log;
+
 import com.kmpdip.booksio.data.structure.Recommendation;
 
 import org.springframework.http.converter.xml.SimpleXmlHttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
@@ -34,9 +38,10 @@ public class BookFromXml {
 
     public Recommendation createBookFromXMLResponse(Map<String, String> bookResponse) {
         Recommendation.RecommendationBuilder builder = new Recommendation.RecommendationBuilder();
+        Bitmap imageLink=GoogleApiRequest.getInstance().getImage(bookResponse.get("isbn"));
         Recommendation book = builder.title(bookResponse.get("title")).author(bookResponse.get("author"))
                 .description(bookResponse.get("abstract")).date(bookResponse.get("date"))
-                .genre(bookResponse.get("subjects")).build();
+                .genre(bookResponse.get("subjects")).image(imageLink).build();
         return book;
     }
 
@@ -47,7 +52,7 @@ public class BookFromXml {
         InputStream is;
         Document dom;
         HashMap<String, String> bookValues = new HashMap<String, String>();
-        String bookAuthor = "", bookAbstract = "", bookSubjects = "", bookTitle = "", bookDate = "";
+        String bookAuthor = "", bookAbstract = "", bookSubjects = "", bookTitle = "", bookDate = "", bookIsbn="";
 
         RestTemplate restTemplate = new RestTemplate();
 
@@ -76,6 +81,9 @@ public class BookFromXml {
             bookSubjects = getSubjects("dc:subject", dom);
             bookValues.put("subjects", bookSubjects);
 
+            bookIsbn = getIsbn("dc:identifier", dom);
+            bookValues.put("isbn", bookIsbn);
+
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
         } catch (SAXException e) {
@@ -103,6 +111,23 @@ public class BookFromXml {
             subjects = bookOutput.item(i).getTextContent() + ", " + subjects;
         }
         return subjects;
+    }
+
+    public String getIsbn(String tagName, Document dom){
+        NodeList bookOutput = dom.getElementsByTagName(tagName);
+        String bookISBN="";
+        if (bookOutput != null){
+            for (int i = 0; i < bookOutput.getLength(); i++) {
+                Node node = bookOutput.item(i).getAttributes().getNamedItem("xsi:type");
+                if (node != null){
+                    if(node.getNodeValue().equals("dkdcplus:ISBN")) {
+                        bookISBN = bookOutput.item(i).getTextContent();
+                        Log.i("Node", bookISBN);
+                    }
+                }
+            }
+        }
+        return bookISBN;
     }
 }
 
