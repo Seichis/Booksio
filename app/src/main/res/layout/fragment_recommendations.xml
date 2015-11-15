@@ -13,11 +13,13 @@
         android:paddingTop="14dip"
         android:text="Genre: Pietrology"
         android:textColor="#FFFFFFFF"
+        android:id="@+id/criterion"
         android:textSize="18sp" />
 
     <it.gmariotti.cardslib.library.view.CardListView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/criterion"
         android:id="@+id/myList"/>
 
 </RelativeLayout>

@@ -3,6 +3,7 @@ package com.kmpdip.booksio.cards;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.kmpdip.booksio.R;
 import com.kmpdip.booksio.data.structure.Recommendation;
@@ -28,7 +29,8 @@ public class MyExpandCard extends CardExpand {
     public void setupInnerViewElements(ViewGroup parent, View view) {
 
         if (view == null) return;
-
+        TextView descriptionTextView=(TextView)view.findViewById(R.id.description);
+        descriptionTextView.setText(String.valueOf(book.getDescription()));
         //Set value in text views
 
     }
