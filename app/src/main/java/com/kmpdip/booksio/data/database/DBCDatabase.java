@@ -48,40 +48,61 @@ public class DBCDatabase extends SQLiteAssetHelper {
         }
         /////////////////
         //this is for debugging
-        Cursor cur = getReadableDatabase().rawQuery("select 0 _id, title from Library", null);
+        Cursor cur = getReadableDatabase().rawQuery("select 0 _id, image from Library", null);
         if (cur != null) {
             if (cur.moveToFirst()) {
                 do {
-                    Log.i("librarychevk", cur.getString(cur.getColumnIndex("title"))); // "Title" is the field name(column) of the Table
+                    byte[] image = cur.getBlob(cur.getColumnIndex("image"));
+//                    String st = cur.getString(cur.getColumnIndex("image"));
+                    if (image != null) {
+                        Log.i("librarychevk", String.valueOf(image));
+                    }
                 } while (cur.moveToNext());
             }
         }
         return bookList;
     }
 
-    public void updateLibrary(Book book, boolean status, Integer rating){
+    public void updateLibrary(Book book, int status){
         //Check for existence
         String sqlCheck = "select 0 _id, book_id from Library where book_id ='"+book.getID()+"'";
         Cursor c = getReadableDatabase().rawQuery(sqlCheck, null);
         if (c.getCount() == 0) {
-            Bitmap bitmap = book.getImage();
-            byte[] image;
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            if (bitmap != null) {
-                bitmap.compress(Bitmap.CompressFormat.PNG, 0, stream);
-                image = stream.toByteArray();
-            } else {
-                image = null;
-            }
+            byte[] image = convertImage(book.getImage());
             String sqlInsert = "INSERT INTO Library VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ? )";
-
             getWritableDatabase().execSQL(sqlInsert, new Object[]{book.getID(), book.getTitle(),
-                    book.getAuthor(), book.getDescription(), book.getDate(), book.getGenre(), image, status, rating});
+                    book.getAuthor(), book.getDescription(), book.getDate(), book.getGenre(), image, status, null});
             Log.i("saved", "saved to db "+book.getTitle());
 
         }else {
             Log.i("saved", "book already exists");
         }
     }
-
+    public byte[] convertImage(Bitmap bitmap){
+        byte[] image;
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        if (bitmap != null) {
+            bitmap.compress(Bitmap.CompressFormat.PNG, 0, stream);
+            image = stream.toByteArray();
+        } else {
+            image = null;
+        }
+        return  image;
+    }
+    public void addRating(final Book book, final float rating){
+        //Check for existence
+        String sqlCheck = "select 0 _id, book_id from Library where book_id ='"+book.getID()+"'";
+        Cursor c = getReadableDatabase().rawQuery(sqlCheck, null);
+        byte[] image = convertImage(book.getImage());
+        if (c.getCount() == 0) {
+            String sqlInsert = "INSERT INTO Library VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ? )";
+            getWritableDatabase().execSQL(sqlInsert, new Object[]{book.getID(), book.getTitle(),
+                    book.getAuthor(), book.getDescription(), book.getDate(), book.getGenre(), image, 2, (int)rating});
+            Log.i("saved", "saved to db "+book.getTitle());
+        }else {
+            String sqlUpdate = "UPDATE Library SET rating = ? AND status = 2 WHERE book_id = ?";
+            getWritableDatabase().execSQL(sqlUpdate, new Object[] {(int)rating, book.getID()});
+            Log.i("saved", "updated object "+book.getTitle());
+        }
+    }
 }
