@@ -1,0 +1,119 @@
+<android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="350dp"
+    android:layout_height="350dp"
+    android:layout_gravity="center_horizontal"
+    android:padding="3dp"
+    >
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text=""
+        android:id="@+id/title"
+        android:textAlignment="center"
+        app:layout_marginTopPercent="3%"/>
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_widthPercent="40%"
+        app:layout_heightPercent="40%"
+        app:layout_marginLeftPercent="30%"
+        app:layout_marginTopPercent="5%"
+        android:layout_below="@+id/title"
+        android:layout_gravity="center"
+        android:id="@+id/cover_img" />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Dislike"
+        app:layout_heightPercent="15%"
+        app:layout_marginTopPercent="20%"
+        android:id="@+id/dislike_button" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_heightPercent="15%"
+        android:text="Like"
+        app:layout_marginTopPercent="20%"
+        app:layout_marginLeftPercent="75%"
+        android:id="@+id/like_button" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="By: "
+        android:id="@+id/author"
+        android:layout_below="@+id/cover_img"
+        app:layout_marginLeftPercent="5%"
+        android:layout_gravity="center"
+        app:layout_marginTopPercent="3%"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Genres: "
+        android:id="@+id/genres"
+        android:layout_below="@+id/author"
+        app:layout_marginLeftPercent="5%"
+        android:layout_gravity="center"
+        app:layout_marginTopPercent="1%"/>
+    <View
+        android:id="@+id/division_line"
+        android:layout_below="@+id/genres"
+        app:layout_marginTopPercent="3%"
+        android:layout_width="fill_parent"
+        android:layout_height="2dip"
+        android:background="@color/colorPrimaryDark" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:id="@+id/friends_number"
+        android:text="100"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/division_line"
+        app:layout_marginTopPercent="5%"
+        app:layout_marginRightPercent="1%"
+        android:layout_gravity="center"
+        />
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/friends_number"
+        android:layout_alignParentRight="true"
+        app:layout_marginRightPercent="8%"
+        android:src="@drawable/messenger_bubble_large_blue"
+        android:id="@+id/friends_img" />
+
+
+    <View
+        android:id="@+id/division_line2"
+        android:layout_below="@+id/friends_number"
+        app:layout_marginTopPercent="3%"
+        android:layout_width="fill_parent"
+        android:layout_height="2dip"
+        android:background="@color/colorPrimaryDark" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:id="@+id/rate_tv"
+        android:text="Read it? Rate it!"
+        android:layout_below="@+id/division_line2"
+        app:layout_marginTopPercent="5%"
+        android:textAlignment="center"
+        />
+
+    <RatingBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/ratingBar"
+        android:layout_below="@+id/rate_tv"
+        android:numStars="3"
+        android:layout_centerHorizontal="true" />
+</android.support.percent.PercentRelativeLayout>

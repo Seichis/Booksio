@@ -16,8 +16,7 @@ public class CardWrapper extends Card {
     CardHeader cardHeader;
     public CardWrapper(Context context,Recommendation book) {
         super(context);
-        cardHeader=new CardHeader(context);
-        cardHeader.setTitle(book.getTitle());
+        cardHeader=new MyCardHeader(context,book);
         super.addCardHeader(cardHeader);
     }
 

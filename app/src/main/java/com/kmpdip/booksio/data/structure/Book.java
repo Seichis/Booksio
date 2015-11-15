@@ -14,6 +14,10 @@ public abstract class  Book<B extends Book<B>>{
     protected final String userCategory;
     protected final Bitmap image;
 
+
+
+    protected final int friendsNumber;
+
     public abstract static class AbstractBookBuilder <T extends AbstractBookBuilder<T>> {
         protected abstract T getThis();
 
@@ -25,6 +29,7 @@ public abstract class  Book<B extends Book<B>>{
         String genre;
         String date;
         String userCategory;
+        int friendsNumber;
         Bitmap image;
 
         public abstract T title(String s);
@@ -45,6 +50,8 @@ public abstract class  Book<B extends Book<B>>{
 
         public abstract T image(Bitmap s);
 
+        public abstract T friendsNumber(int i);
+
         public abstract Book build();
     }
 
@@ -61,6 +68,7 @@ public abstract class  Book<B extends Book<B>>{
         date = builder.date;
         userCategory = builder.userCategory;
         image=builder.image;
+        friendsNumber=builder.friendsNumber;
     }
 
 
@@ -81,4 +89,6 @@ public abstract class  Book<B extends Book<B>>{
     public abstract String getUserCategory();
 
     public abstract Bitmap getImage();
+
+    public abstract int getFriendsNumber();
 }

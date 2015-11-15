@@ -41,6 +41,7 @@ import it.gmariotti.cardslib.library.internal.ViewToClickToExpand;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     public Context context;
+    BookFromXml bookFromXml = BookFromXml.getInstance();
     public List<Recommendation> recommendations = new ArrayList<>();
     // Initialize fragment resources
     private final Handler handler = new Handler();
@@ -216,15 +217,15 @@ public class MainActivity extends AppCompatActivity
         protected void onPostExecute(Object response) {
             super.onPostExecute(response);
             MainActivity.getInstance().createFragments();
+            RecommendationsFragment.getInstance().initCard();
         }
 
         @Override
         protected List<HashMap<String, String>> doInBackground(Object[] params) {
             DBCDatabase db = new DBCDatabase(MainActivity.getInstance().getApplicationContext());
-            BookFromXml bookFromXml = BookFromXml.getInstance();
+
             ArrayList books = db.getBooks(userClass, randomBooks);
             List<HashMap<String, String>> response = new ArrayList<>();
-
             for (int j = 0; j < books.size(); j++) {
                 response.add(bookFromXml.consumeWebService((String) books.get(j)));
                 Recommendation book = bookFromXml.createBookFromXMLResponse(response.get(j));

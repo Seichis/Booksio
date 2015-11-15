@@ -70,6 +70,12 @@ public class Recommendation extends Book<Recommendation> {
         }
 
         @Override
+        public RecommendationBuilder friendsNumber(int i) {
+            friendsNumber=i;
+            return this;
+        }
+
+        @Override
         public Recommendation build() {
             return new Recommendation(this);
         }
@@ -119,6 +125,11 @@ public class Recommendation extends Book<Recommendation> {
     @Override
     public Bitmap getImage() {
         return this.image;
+    }
+
+    @Override
+    public int getFriendsNumber() {
+        return this.friendsNumber;
     }
 
 }

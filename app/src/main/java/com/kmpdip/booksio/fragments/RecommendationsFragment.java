@@ -25,23 +25,25 @@ import it.gmariotti.cardslib.library.view.CardListView;
  * Created by User1 on 13/11/2015.
  */
 public class RecommendationsFragment extends DialogFragment {
-
-    public static RecommendationsFragment getInstance;
+    private static RecommendationsFragment recommendationsFragment;
     public List<Card> myCardlist = new ArrayList<>();
 
+    public static RecommendationsFragment getInstance(){
+        return recommendationsFragment;
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        recommendationsFragment=this;
         return inflater.inflate(R.layout.fragment_recommendations, container, false);
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        initCard();
     }
 
-    private void initCard() {
+    public void initCard() {
         for (Recommendation rec : MainActivity.getInstance().recommendations){
             myCardlist.add(createCard(rec));
         }
