@@ -24,6 +24,7 @@ import com.astuetz.PagerSlidingTabStrip;
 import com.kmpdip.booksio.cards.CardWrapper;
 import com.kmpdip.booksio.cards.MyExpandCard;
 import com.kmpdip.booksio.data.database.DBCDatabase;
+import com.kmpdip.booksio.data.structure.LibraryBook;
 import com.kmpdip.booksio.data.structure.Recommendation;
 import com.kmpdip.booksio.fragments.FragmentAdapter;
 import com.kmpdip.booksio.fragments.RecommendationsFragment;
@@ -265,6 +266,10 @@ public class MainActivity extends AppCompatActivity
 //            for (Map<String, String> map : response) {
 //                Log.i("XMLRESPONSE", map.get("title"));
 //            }
+
+            //TODO
+            List<LibraryBook.LibraryBookBuilder> booksdetails = new ArrayList<>();
+            booksdetails = db.getBooksDetails(2);
             db.close();
 
             return response;

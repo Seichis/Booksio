@@ -3,9 +3,11 @@ package com.kmpdip.booksio.data.database;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import com.kmpdip.booksio.data.structure.Book;
+import com.kmpdip.booksio.data.structure.LibraryBook;
 import com.readystatesoftware.sqliteasset.SQLiteAssetHelper;
 
 import java.io.ByteArrayOutputStream;
@@ -48,15 +50,14 @@ public class DBCDatabase extends SQLiteAssetHelper {
         }
         /////////////////
         //this is for debugging
-        Cursor cur = getReadableDatabase().rawQuery("select 0 _id, image from Library", null);
+        Cursor cur = getReadableDatabase().rawQuery("select 0 _id, * from Library", null);
         if (cur != null) {
             if (cur.moveToFirst()) {
                 do {
                     byte[] image = cur.getBlob(cur.getColumnIndex("image"));
-//                    String st = cur.getString(cur.getColumnIndex("image"));
-                    if (image != null) {
-                        Log.i("librarychevk", String.valueOf(image));
-                    }
+                    String st = cur.getString(cur.getColumnIndex("book_id"));
+
+                        Log.i("librarychevk", st);
                 } while (cur.moveToNext());
             }
         }
@@ -78,17 +79,7 @@ public class DBCDatabase extends SQLiteAssetHelper {
             Log.i("saved", "book already exists");
         }
     }
-    public byte[] convertImage(Bitmap bitmap){
-        byte[] image;
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        if (bitmap != null) {
-            bitmap.compress(Bitmap.CompressFormat.PNG, 0, stream);
-            image = stream.toByteArray();
-        } else {
-            image = null;
-        }
-        return  image;
-    }
+
     public void addRating(final Book book, final float rating){
         //Check for existence
         String sqlCheck = "select 0 _id, book_id from Library where book_id ='"+book.getID()+"'";
@@ -105,4 +96,52 @@ public class DBCDatabase extends SQLiteAssetHelper {
             Log.i("saved", "updated object "+book.getTitle());
         }
     }
+
+    /**
+     * Method for reading books from Library table based on book status
+     * @param status 0 for dislike, 1 for like, 2 for has read(has rating)
+     * @return
+     */
+    public List<LibraryBook.LibraryBookBuilder> getBooksDetails(int status) {
+        Bitmap bitmapImage = null;
+        Cursor cur = getReadableDatabase().rawQuery("select 0 _id, * from Library where status=?", new String[] {String.valueOf(status)});
+        List<LibraryBook.LibraryBookBuilder> booksDetails = new ArrayList<>();
+        LibraryBook.LibraryBookBuilder book = new LibraryBook.LibraryBookBuilder();
+        if (cur != null) {
+            if (cur.moveToFirst()) {
+                do {
+                    byte[] image = cur.getBlob(cur.getColumnIndex("image"));
+                    if (image != null) {
+                        bitmapImage = BitmapFactory.decodeByteArray(image, 0, image.length);
+                    }
+                    book.ID(cur.getString(cur.getColumnIndex("book_id")))
+                            .title(cur.getString(cur.getColumnIndex("title")))
+                            .author(cur.getString(cur.getColumnIndex("author")))
+                            .description(cur.getString(cur.getColumnIndex("abstract")))
+                            .date(cur.getString(cur.getColumnIndex("date")))
+                            .genre(cur.getString(cur.getColumnIndex("subject")))
+                            .image(bitmapImage)
+                            .status(cur.getInt(cur.getColumnIndex("status")))
+                            .rating(cur.getInt(cur.getColumnIndex("rating")))
+                            .build();
+
+                    booksDetails.add(book);
+                } while (cur.moveToNext());
+            }
+        }
+        return booksDetails;
+    }
+
+    public byte[] convertImage(Bitmap bitmap){
+        byte[] image;
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        if (bitmap != null) {
+            bitmap.compress(Bitmap.CompressFormat.PNG, 0, stream);
+            image = stream.toByteArray();
+        } else {
+            image = null;
+        }
+        return  image;
+    }
+
 }
