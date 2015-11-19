@@ -92,7 +92,7 @@ public class LibraryBook extends Book {
         }
 
         @Override
-        public Book build() {
+        public LibraryBook build() {
             return new LibraryBook(this);
         }
     }

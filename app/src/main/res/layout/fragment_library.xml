@@ -14,4 +14,8 @@
         android:textColor="#FFFFFFFF"
         android:textSize="18sp" />
 
+    <it.gmariotti.cardslib.library.view.CardListView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/myListLibrary"/>
 </RelativeLayout>

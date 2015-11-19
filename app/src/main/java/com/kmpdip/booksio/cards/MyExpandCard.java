@@ -15,12 +15,17 @@ import it.gmariotti.cardslib.library.internal.CardExpand;
  * Created by User1 on 13/11/2015.
  */
 
-public class MyExpandCard extends CardExpand {
+public class MyExpandCard extends CardExpand implements ICard {
     Book book;
 
     //Use your resource ID for your inner layout
     public MyExpandCard(Context context, Book book) {
-        super(context, R.layout.inner_card_rec);
+        super(context);
+        if (book.getClass().getSimpleName().equals("Recommendation")){
+            super.setInnerLayout(R.layout.inner_card_rec);
+        }else if (book.getClass().getSimpleName().equals("LibraryBook")){
+            super.setInnerLayout(R.layout.card_header_library);
+    }
         this.book = book;
     }
 
@@ -29,10 +34,23 @@ public class MyExpandCard extends CardExpand {
     public void setupInnerViewElements(ViewGroup parent, View view) {
 
         if (view == null) return;
-        TextView descriptionTextView = (TextView) view.findViewById(R.id.description);
-        descriptionTextView.setText(String.valueOf(book.getDescription()));
+        if (book.getClass().getSimpleName().equals("Recommendation")){
+            setRecommendationCardView(view);
+        }else if (book.getClass().getSimpleName().equals("LibraryBook")){
+            setLibraryCardView(view);
+        }
         //Set value in text views
 
     }
 
+    @Override
+    public void setRecommendationCardView(View view) {
+        TextView descriptionTextView = (TextView) view.findViewById(R.id.description);
+        descriptionTextView.setText(String.valueOf(book.getDescription()));
+    }
+
+    @Override
+    public void setLibraryCardView(View view) {
+
+    }
 }

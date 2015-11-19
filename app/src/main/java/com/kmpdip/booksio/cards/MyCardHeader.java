@@ -1,6 +1,7 @@
 package com.kmpdip.booksio.cards;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -17,13 +18,21 @@ import it.gmariotti.cardslib.library.internal.CardHeader;
 /**
  * Created by User1 on 15/11/2015.
  */
-public class MyCardHeader extends CardHeader {
+public class MyCardHeader extends CardHeader implements ICard{
 
     Book book;
     Context context;
 
+
     public MyCardHeader(Context context, Book book) {
-        super(context, R.layout.card_header_rec);
+        super(context);
+        Log.i("BookClass",book.getClass().getSimpleName());
+        if (book.getClass().getSimpleName().equals("Recommendation")){
+            Log.i("BookClass","inside if");
+            super.setInnerLayout(R.layout.card_header_rec);
+        }else if (book.getClass().getSimpleName().equals("LibraryBook")){
+            super.setInnerLayout(R.layout.card_header_library);
+        }
         this.context = context;
         this.book = book;
     }
@@ -32,7 +41,19 @@ public class MyCardHeader extends CardHeader {
     public void setupInnerViewElements(ViewGroup parent, View view) {
 
         if (view == null) return;
-        //Retrieve TextView elements
+
+        if (book.getClass().getSimpleName().equals("Recommendation")){
+            setRecommendationCardView(view);
+        }else if (book.getClass().getSimpleName().equals("LibraryBook")){
+            setLibraryCardView(view);
+        }
+
+
+    }
+
+
+    @Override
+    public void setRecommendationCardView(View view) {
         ImageView cover = (ImageView) view.findViewById(R.id.cover_img);
         Button likeButton = (Button) view.findViewById(R.id.like_button);
         Button dislikeButton = (Button) view.findViewById(R.id.dislike_button);
@@ -77,4 +98,10 @@ public class MyCardHeader extends CardHeader {
         });
 
     }
+
+    @Override
+    public void setLibraryCardView(View view) {
+
+    }
 }
+

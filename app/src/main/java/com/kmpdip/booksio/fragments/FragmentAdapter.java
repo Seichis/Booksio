@@ -2,13 +2,19 @@ package com.kmpdip.booksio.fragments;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;;
+import android.support.v4.app.FragmentPagerAdapter;
+
+;
 
 public class FragmentAdapter extends FragmentPagerAdapter {
     private final String[] TITLES = {"Recommendations", "Library"};
+    LibraryFragment mLibraryFragment;
+    RecommendationsFragment mRecommendationsFragment;
 
     public FragmentAdapter(FragmentManager fm) {
         super(fm);
+        this.mLibraryFragment = new LibraryFragment();
+        this.mRecommendationsFragment = new RecommendationsFragment();
     }
 
     @Override
@@ -21,9 +27,9 @@ public class FragmentAdapter extends FragmentPagerAdapter {
         // TODO Auto-generated method stub
         switch (position) {
             case 0:
-                return new RecommendationsFragment();
+                return this.mRecommendationsFragment;
             case 1:
-                return new LibraryFragment();
+                return this.mLibraryFragment;
             default:
                 break;
         }

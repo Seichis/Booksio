@@ -102,11 +102,11 @@ public class DBCDatabase extends SQLiteAssetHelper {
      * @param status 0 for dislike, 1 for like, 2 for has read(has rating)
      * @return
      */
-    public List<LibraryBook.LibraryBookBuilder> getBooksDetails(int status) {
+    public List<LibraryBook> getBooksDetails(int status) {
         Bitmap bitmapImage = null;
         Cursor cur = getReadableDatabase().rawQuery("select 0 _id, * from Library where status=?", new String[] {String.valueOf(status)});
-        List<LibraryBook.LibraryBookBuilder> booksDetails = new ArrayList<>();
-        LibraryBook.LibraryBookBuilder book = new LibraryBook.LibraryBookBuilder();
+        List<LibraryBook> booksDetails = new ArrayList<>();
+        LibraryBook.LibraryBookBuilder bookBuilder = new LibraryBook.LibraryBookBuilder();
         if (cur != null) {
             if (cur.moveToFirst()) {
                 do {
@@ -114,7 +114,7 @@ public class DBCDatabase extends SQLiteAssetHelper {
                     if (image != null) {
                         bitmapImage = BitmapFactory.decodeByteArray(image, 0, image.length);
                     }
-                    book.ID(cur.getString(cur.getColumnIndex("book_id")))
+                    LibraryBook book = bookBuilder.ID(cur.getString(cur.getColumnIndex("book_id")))
                             .title(cur.getString(cur.getColumnIndex("title")))
                             .author(cur.getString(cur.getColumnIndex("author")))
                             .description(cur.getString(cur.getColumnIndex("abstract")))

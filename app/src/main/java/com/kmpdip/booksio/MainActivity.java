@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -36,6 +37,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -51,10 +53,17 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,RecommendationsFragment.RecommendationsFragmentListener,LibraryFragment.LibraryFragmentListener {
     public Context context;
     BookFromXml bookFromXml = BookFromXml.getInstance();
-    public List<Recommendation> recommendations = new ArrayList<>();
+    List<Recommendation> recommendations = new ArrayList<>();
+    List<LibraryBook> libraryBooks=new ArrayList<>();
     // Initialize fragment resources
-    private final Handler handler = new Handler();
+    private final Handler mHandler = new Handler(){
+        @Override
+        public void handleMessage(Message msg){
+            initLibraryCards();
+        }
+    };
     TextView mTextView;
+
     List<String> randomBooks = Arrays.asList("870970-basis:27069703", "870970-basis:51039629", "870970-basis:50653463", "870970-basis:05636078", "870970-basis:28410352",
             "870970-basis:23461854",
             "870970-basis:21526231",
@@ -73,7 +82,7 @@ public class MainActivity extends AppCompatActivity
     private static MainActivity mainActivity;
     public DatabaseTask task;
     private static String DB_PATH = "/data/data/com.kmpdip.booksio/database/";
-    private static String DB_NAME ="dbcdatabase.db";
+    private static String DB_NAME ="/databases/dbcdatabase.db";
 
     public static MainActivity getInstance(){
         return mainActivity;
@@ -83,8 +92,13 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
         mainActivity=this;
+
+
+        setSupportActionBar(toolbar);
+
+
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -236,10 +250,10 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void initCard() {
+    public void initRecommendationCard() {
         List<Card> myCardlist = new ArrayList<>();
 
-        for (Recommendation rec : MainActivity.getInstance().recommendations){
+        for (Recommendation rec : recommendations){
             myCardlist.add(createRecommendationCard(rec));
         }
 
@@ -276,11 +290,14 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void run() {
                 DBCDatabase db = new DBCDatabase(MainActivity.getInstance().getApplicationContext());
-                List<LibraryBook.LibraryBookBuilder> booksdetails = new ArrayList<>();
-                booksdetails = db.getBooksDetails(2);
+                libraryBooks = db.getBooksDetails(2);
                 db.close();
+                mHandler.sendEmptyMessage(0);
             }
         };
+
+        Thread mThread=new Thread(runnable);
+        mThread.start();
 
     }
 
@@ -298,8 +315,27 @@ public class MainActivity extends AppCompatActivity
                         .setupCardElement(ViewToClickToExpand.CardElementUI.CARD);
         cardWrapper.setViewToClickToExpand(viewToClickToExpand);
         cardWrapper.setSwipeable(true);
+
         return cardWrapper;
 
+    }
+
+    @Override
+    public void initLibraryCards() {
+        List<Card> myCardlist = new ArrayList<>();
+
+        for (LibraryBook lb : libraryBooks){
+            myCardlist.add(createLibraryCard(lb));
+        }
+
+        //Set the arrayAdapter
+        CardArrayAdapter mCardArrayAdapter = new CardArrayAdapter(this, myCardlist);
+        CardListView cardListView = (CardListView) this.findViewById(R.id.myListLibrary);
+
+        //animCardArrayAdapter.setInitialDelayMillis(500);
+        if (cardListView != null) {
+            cardListView.setAdapter(mCardArrayAdapter);
+        }
     }
 
     public class DatabaseTask extends AsyncTask {
@@ -308,7 +344,8 @@ public class MainActivity extends AppCompatActivity
         protected void onPostExecute(Object response) {
             super.onPostExecute(response);
             MainActivity.getInstance().createFragments();
-            initCard();
+            initRecommendationCard();
+            MainActivity.getInstance().loadLibraryBooksFromDatabase();
         }
 
         @Override
@@ -323,9 +360,6 @@ public class MainActivity extends AppCompatActivity
                 recommendations.add(book);
                 Log.i("BOOK", (String) books.get(j));
             }
-
-
-            //TODO
 
             return response;
         }

@@ -30,7 +30,7 @@ public class RecommendationsFragment extends DialogFragment {
     RecommendationsFragmentListener recommendationsFragmentListener;
 
     public interface RecommendationsFragmentListener{
-        void initCard();
+        void initRecommendationCard();
         Card createRecommendationCard(Recommendation book);
     }
 
