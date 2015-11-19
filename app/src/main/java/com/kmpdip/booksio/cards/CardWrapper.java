@@ -2,7 +2,7 @@ package com.kmpdip.booksio.cards;
 
 import android.content.Context;
 
-import com.kmpdip.booksio.data.structure.Recommendation;
+import com.kmpdip.booksio.data.structure.Book;
 
 import it.gmariotti.cardslib.library.internal.Card;
 import it.gmariotti.cardslib.library.internal.CardHeader;
@@ -14,9 +14,10 @@ import it.gmariotti.cardslib.library.internal.CardHeader;
 public class CardWrapper extends Card {
 
     CardHeader cardHeader;
-    public CardWrapper(Context context,Recommendation book) {
+
+    public CardWrapper(Context context, Book book) {
         super(context);
-        cardHeader=new MyCardHeader(context,book);
+        cardHeader = new MyCardHeader(context, book);
         super.addCardHeader(cardHeader);
     }
 

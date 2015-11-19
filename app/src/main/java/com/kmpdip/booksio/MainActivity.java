@@ -27,6 +27,7 @@ import com.kmpdip.booksio.data.database.DBCDatabase;
 import com.kmpdip.booksio.data.structure.LibraryBook;
 import com.kmpdip.booksio.data.structure.Recommendation;
 import com.kmpdip.booksio.fragments.FragmentAdapter;
+import com.kmpdip.booksio.fragments.LibraryFragment;
 import com.kmpdip.booksio.fragments.RecommendationsFragment;
 import com.kmpdip.booksio.onlineoperations.BookFromXml;
 
@@ -42,10 +43,12 @@ import java.util.List;
 import java.util.Map;
 
 import it.gmariotti.cardslib.library.internal.Card;
+import it.gmariotti.cardslib.library.internal.CardArrayAdapter;
 import it.gmariotti.cardslib.library.internal.ViewToClickToExpand;
+import it.gmariotti.cardslib.library.view.CardListView;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener,RecommendationsFragment.RecommendationsFragmentListener,LibraryFragment.LibraryFragmentListener {
     public Context context;
     BookFromXml bookFromXml = BookFromXml.getInstance();
     public List<Recommendation> recommendations = new ArrayList<>();
@@ -82,7 +85,6 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         mainActivity=this;
-//        asyncFinished=false;
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -191,15 +193,6 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.action_settings) {
             return true;
         }
-//        else if (id == R.id.action_recommendations) {
-//            RecommendationsFragment dialog = new RecommendationsFragment();
-//            dialog.show(getSupportFragmentManager(), "Recommendations");
-//            return true;
-//        } else if (id == R.id.action_library) {
-//            RecommendationsFragment dialog = new RecommendationsFragment();
-//            dialog.show(getSupportFragmentManager(), "Library");
-//            return true;
-//        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -242,13 +235,80 @@ public class MainActivity extends AppCompatActivity
         super.onRestoreInstanceState(savedInstanceState);
     }
 
+    @Override
+    public void initCard() {
+        List<Card> myCardlist = new ArrayList<>();
+
+        for (Recommendation rec : MainActivity.getInstance().recommendations){
+            myCardlist.add(createRecommendationCard(rec));
+        }
+
+        //Set the arrayAdapter
+        CardArrayAdapter mCardArrayAdapter = new CardArrayAdapter(this, myCardlist);
+        CardListView cardListView = (CardListView) this.findViewById(R.id.myList);
+
+        //animCardArrayAdapter.setInitialDelayMillis(500);
+        if (cardListView != null) {
+            cardListView.setAdapter(mCardArrayAdapter);
+        }
+    }
+
+    @Override
+    public Card createRecommendationCard(Recommendation book){
+        CardWrapper cardWrapper = new CardWrapper(this, book);
+        MyExpandCard cardInside = new MyExpandCard(this, book);
+        cardWrapper.addCardExpand(cardInside);
+
+        //Add a viewToClickExpand to enable click on whole card
+        ViewToClickToExpand viewToClickToExpand =
+                ViewToClickToExpand.builder()
+                        .highlightView(false)
+                        .setupCardElement(ViewToClickToExpand.CardElementUI.CARD);
+        cardWrapper.setViewToClickToExpand(viewToClickToExpand);
+        cardWrapper.setSwipeable(true);
+        return cardWrapper;
+    }
+
+
+    @Override
+    public void loadLibraryBooksFromDatabase() {
+        Runnable runnable= new Runnable() {
+            @Override
+            public void run() {
+                DBCDatabase db = new DBCDatabase(MainActivity.getInstance().getApplicationContext());
+                List<LibraryBook.LibraryBookBuilder> booksdetails = new ArrayList<>();
+                booksdetails = db.getBooksDetails(2);
+                db.close();
+            }
+        };
+
+    }
+
+    @Override
+    public Card createLibraryCard(LibraryBook book) {
+
+        CardWrapper cardWrapper = new CardWrapper(this, book);
+        MyExpandCard cardInside = new MyExpandCard(this, book);
+        cardWrapper.addCardExpand(cardInside);
+
+        //Add a viewToClickExpand to enable click on whole card
+        ViewToClickToExpand viewToClickToExpand =
+                ViewToClickToExpand.builder()
+                        .highlightView(false)
+                        .setupCardElement(ViewToClickToExpand.CardElementUI.CARD);
+        cardWrapper.setViewToClickToExpand(viewToClickToExpand);
+        cardWrapper.setSwipeable(true);
+        return cardWrapper;
+
+    }
+
     public class DatabaseTask extends AsyncTask {
 
         @Override
         protected void onPostExecute(Object response) {
             super.onPostExecute(response);
             MainActivity.getInstance().createFragments();
-            RecommendationsFragment.getInstance().initCard();
+            initCard();
         }
 
         @Override
@@ -263,18 +323,14 @@ public class MainActivity extends AppCompatActivity
                 recommendations.add(book);
                 Log.i("BOOK", (String) books.get(j));
             }
-//            for (Map<String, String> map : response) {
-//                Log.i("XMLRESPONSE", map.get("title"));
-//            }
+
 
             //TODO
-            List<LibraryBook.LibraryBookBuilder> booksdetails = new ArrayList<>();
-            booksdetails = db.getBooksDetails(2);
-            db.close();
 
             return response;
         }
     }
+
 
 
 }

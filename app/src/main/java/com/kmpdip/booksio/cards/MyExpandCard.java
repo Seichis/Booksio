@@ -6,7 +6,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.kmpdip.booksio.R;
-import com.kmpdip.booksio.data.structure.Recommendation;
+import com.kmpdip.booksio.data.structure.Book;
 
 import it.gmariotti.cardslib.library.internal.CardExpand;
 
@@ -16,10 +16,10 @@ import it.gmariotti.cardslib.library.internal.CardExpand;
  */
 
 public class MyExpandCard extends CardExpand {
-    Recommendation book;
+    Book book;
 
     //Use your resource ID for your inner layout
-    public MyExpandCard(Context context, Recommendation book) {
+    public MyExpandCard(Context context, Book book) {
         super(context, R.layout.inner_card_rec);
         this.book = book;
     }
@@ -29,7 +29,7 @@ public class MyExpandCard extends CardExpand {
     public void setupInnerViewElements(ViewGroup parent, View view) {
 
         if (view == null) return;
-        TextView descriptionTextView=(TextView)view.findViewById(R.id.description);
+        TextView descriptionTextView = (TextView) view.findViewById(R.id.description);
         descriptionTextView.setText(String.valueOf(book.getDescription()));
         //Set value in text views
 

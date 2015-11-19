@@ -1,5 +1,6 @@
 package com.kmpdip.booksio.fragments;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
@@ -25,16 +26,29 @@ import it.gmariotti.cardslib.library.view.CardListView;
  * Created by User1 on 13/11/2015.
  */
 public class RecommendationsFragment extends DialogFragment {
-    private static RecommendationsFragment recommendationsFragment;
-    public List<Card> myCardlist = new ArrayList<>();
 
-    public static RecommendationsFragment getInstance(){
-        return recommendationsFragment;
+    RecommendationsFragmentListener recommendationsFragmentListener;
+
+    public interface RecommendationsFragmentListener{
+        void initCard();
+        Card createRecommendationCard(Recommendation book);
     }
+
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            recommendationsFragmentListener = (RecommendationsFragmentListener) activity;
+        }catch (ClassCastException e){
+            throw new ClassCastException(activity.toString());
+        }
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        recommendationsFragment=this;
+
         return inflater.inflate(R.layout.fragment_recommendations, container, false);
     }
 
@@ -43,32 +57,4 @@ public class RecommendationsFragment extends DialogFragment {
         super.onActivityCreated(savedInstanceState);
     }
 
-    public void initCard() {
-        for (Recommendation rec : MainActivity.getInstance().recommendations){
-            myCardlist.add(createCard(rec));
-        }
-
-        //Set the arrayAdapter
-        CardArrayAdapter mCardArrayAdapter = new CardArrayAdapter(getActivity(), myCardlist);
-        CardListView cardListView = (CardListView) getActivity().findViewById(R.id.myList);
-
-        //animCardArrayAdapter.setInitialDelayMillis(500);
-        if (cardListView != null) {
-            cardListView.setAdapter(mCardArrayAdapter);
-        }
-    }
-    public Card createCard(Recommendation book){
-        CardWrapper cardWrapper = new CardWrapper(this.getActivity(), book);
-        MyExpandCard cardInside = new MyExpandCard(this.getActivity(), book);
-        cardWrapper.addCardExpand(cardInside);
-
-        //Add a viewToClickExpand to enable click on whole card
-        ViewToClickToExpand viewToClickToExpand =
-                ViewToClickToExpand.builder()
-                        .highlightView(false)
-                        .setupCardElement(ViewToClickToExpand.CardElementUI.CARD);
-        cardWrapper.setViewToClickToExpand(viewToClickToExpand);
-        cardWrapper.setSwipeable(true);
-        return cardWrapper;
-    }
 }
