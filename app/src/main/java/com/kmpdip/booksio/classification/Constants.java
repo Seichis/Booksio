@@ -22,6 +22,7 @@ public class Constants {
     public final static String LITERATURE = "literature";
     public final static String HISTORY = "history";
     public final static String GENDER = "gender";
+    public final static String HAS_LOGGED_IN_AGAIN= "Already there";
 
 
     // List of Features

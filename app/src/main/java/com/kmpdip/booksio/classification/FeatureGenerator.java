@@ -2,6 +2,8 @@ package com.kmpdip.booksio.classification;
 
 
 
+import com.kmpdip.booksio.data.structure.UserToClassify;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -19,20 +21,20 @@ public class FeatureGenerator {
         ;
     }
 
-    public static HashMap<String, Float> processUser(DataInstance di) {
+    public static HashMap<String, Float> processUser(UserToClassify user) {
 
-        float age = 0f;
-        float number_loans = 0f;
-        float science_research = 0f;
-        float religion = 0f;
-        float social_science = 0f;
-        float geography =0f;
-        float math_science = 0f;
-        float practical = 0f;
-        float arts_sports = 0f;
-        float literature = 0f;
-        float history = 0f;
-        float gender = -1f;
+        float age = user.getAge();
+        float number_loans = user.getNumber_loans();
+        float science_research = user.getScience_research();
+        float religion = user.getReligion();
+        float social_science = user.getSocial_science();
+        float geography =user.getGeography();
+        float math_science = user.getMath_science();
+        float practical = user.getPractical();
+        float arts_sports = user.getArts_sports();
+        float literature = user.getLiterature();
+        float history = user.getHistory();
+        float gender = user.getGender();
 
 
         // Output variables
@@ -65,9 +67,7 @@ public class FeatureGenerator {
 
         if (isLabelRequired) {
             FastVector fv = new FastVector();
-            for (String classLabel : Constants.CLASS_LABELS) {
-                fv.addElement(classLabel);
-            }
+            fv.addElement("?");
             attrs.addElement(new Attribute(Constants.HEADER_CLASS_LABEL, fv));
 
         }

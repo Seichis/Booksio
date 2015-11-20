@@ -1,10 +1,12 @@
 package com.kmpdip.booksio;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -24,46 +26,65 @@ import android.widget.TextView;
 import com.astuetz.PagerSlidingTabStrip;
 import com.kmpdip.booksio.cards.CardWrapper;
 import com.kmpdip.booksio.cards.MyExpandCard;
+import com.kmpdip.booksio.classification.Constants;
+import com.kmpdip.booksio.classification.FeatureGenerator;
+import com.kmpdip.booksio.classification.J48Wrapper;
+import com.kmpdip.booksio.classification.WekaWrapper;
 import com.kmpdip.booksio.data.database.DBCDatabase;
+import com.kmpdip.booksio.data.structure.FacebookUserData;
 import com.kmpdip.booksio.data.structure.LibraryBook;
 import com.kmpdip.booksio.data.structure.Recommendation;
+import com.kmpdip.booksio.data.structure.UserToClassify;
 import com.kmpdip.booksio.fragments.FragmentAdapter;
 import com.kmpdip.booksio.fragments.LibraryFragment;
 import com.kmpdip.booksio.fragments.RecommendationsFragment;
 import com.kmpdip.booksio.onlineoperations.BookFromXml;
+import com.parse.ParseUser;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Random;
 
 import it.gmariotti.cardslib.library.internal.Card;
 import it.gmariotti.cardslib.library.internal.CardArrayAdapter;
 import it.gmariotti.cardslib.library.internal.ViewToClickToExpand;
 import it.gmariotti.cardslib.library.view.CardListView;
+import weka.core.Attribute;
+import weka.core.Instance;
+import weka.core.Instances;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener,RecommendationsFragment.RecommendationsFragmentListener,LibraryFragment.LibraryFragmentListener {
+        implements NavigationView.OnNavigationItemSelectedListener, RecommendationsFragment.RecommendationsFragmentListener, LibraryFragment.LibraryFragmentListener {
+    private static MainActivity mainActivity;
+    ParseUser currentUser;
+    private static String DB_PATH = "/data/data/com.kmpdip.booksio/database/";
+    private static String DB_NAME = "/databases/dbcdatabase.db";
     public Context context;
+    public String userClass;
+    public DatabaseTask task;
+    FacebookUserData fbUser;
     BookFromXml bookFromXml = BookFromXml.getInstance();
     List<Recommendation> recommendations = new ArrayList<>();
-    List<LibraryBook> libraryBooks=new ArrayList<>();
+    List<LibraryBook> libraryBooks = new ArrayList<>();
+    Random random;
+    SharedPreferences preferences;
+    SharedPreferences.Editor editor;
+
     // Initialize fragment resources
-    private final Handler mHandler = new Handler(){
+    private final Handler mHandler = new Handler() {
         @Override
-        public void handleMessage(Message msg){
+        public void handleMessage(Message msg) {
             initLibraryCards();
         }
     };
     TextView mTextView;
-
     List<String> randomBooks = Arrays.asList("870970-basis:27069703", "870970-basis:51039629", "870970-basis:50653463", "870970-basis:05636078", "870970-basis:28410352",
             "870970-basis:23461854",
             "870970-basis:21526231",
@@ -75,28 +96,50 @@ public class MainActivity extends AppCompatActivity
             "870970-basis:51041631",
             "870970-basis:42511773");
     //this is the class that the user belongs to
-    String userClass = "3";
     private PagerSlidingTabStrip tabs;
     private ViewPager pager;
     private FragmentAdapter adapter;
-    private static MainActivity mainActivity;
-    public DatabaseTask task;
-    private static String DB_PATH = "/data/data/com.kmpdip.booksio/database/";
-    private static String DB_NAME ="/databases/dbcdatabase.db";
 
-    public static MainActivity getInstance(){
+    UserToClassify userToClassify;
+    private ParseUser facebookDataToUserObj;
+
+    public static MainActivity getInstance() {
         return mainActivity;
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        mainActivity=this;
+        mainActivity = this;
+        random = new Random();
+        currentUser=ParseUser.getCurrentUser();
+
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        editor = preferences.edit();
+
+        // If it is the first time the user logs in the application we save the data in shared preferences and extract all the data we need from the facebook account
+        //We emulate the extraction of these data since we needed to take permission to use the book information of each user so it needed more time than we had.
+        if (!preferences.getBoolean(Constants.HAS_LOGGED_IN_AGAIN,false)){
+            fbUser=getFbUserWithData();
+            saveAllUserDataToSharedPreferences(fbUser);
+            updateParseUserOnline();
+            userToClassify = getUserFeatures();
+            editor.putBoolean(Constants.HAS_LOGGED_IN_AGAIN, true);
+        }
+        // If it is not the first time he logs in the Parse user object should contain all the information needed in order to classify the user
+        else{
+            userToClassify = getUserFeatures();
+        }
 
 
+
+
+
+
+        userClass = getPredictUserClass(userToClassify);
         setSupportActionBar(toolbar);
-
 
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -131,11 +174,82 @@ public class MainActivity extends AppCompatActivity
 
         task = new DatabaseTask();
         task.execute();
-        Log.i("Async",String.valueOf(task.getStatus()));
-
+        Log.i("Async", String.valueOf(task.getStatus()));
 
 
     }
+
+    private FacebookUserData getFbUserWithData() {
+        FacebookUserData.FacebookUserDataBuilder fbBuilder = new FacebookUserData.FacebookUserDataBuilder();
+        return (FacebookUserData)fbBuilder.currentUser( this.currentUser)
+                .history((float) (random.nextGaussian()*0.5+1))
+                .religion((float) (random.nextGaussian()*0.5+1))
+                .practical((float) (random.nextGaussian()*0.5+1))
+                .math_science((float) (random.nextGaussian()*0.5+1))
+                .arts_sports((float) (random.nextGaussian()*0.5+1))
+                .gender((float) (random.nextInt(1)))
+                .number_loans((float) (random.nextInt(1000)))
+                .geography((float) (random.nextGaussian()*0.5+1))
+                .literature((float) (random.nextGaussian()*0.5+1))
+                .social_science((float) (random.nextGaussian()*0.5+1))
+                .science_research((float) (random.nextGaussian()*0.5+1))
+                .age((float) (random.nextInt(70)))
+                .build();
+    }
+
+    private UserToClassify getUserFeatures() {
+
+        UserToClassify.UserToClassifyBuilder userBuilder=new UserToClassify.UserToClassifyBuilder();
+        return userBuilder.age((Float) this.currentUser.get("age"))
+                .arts_sports((Float) this.currentUser.get("arts_sports"))
+                .gender((Float) this.currentUser.get("gender"))
+                .geography((Float) this.currentUser.get("geography"))
+                .literature((Float) this.currentUser.get("literature"))
+                .math_science((Float) this.currentUser.get("math_science"))
+                .practical((Float) this.currentUser.get("practical"))
+                .religion((Float) this.currentUser.get("religion"))
+                .number_loans((Float) this.currentUser.get("number_loans"))
+                .social_science((Float) this.currentUser.get("social_science"))
+                .science_research((Float) this.currentUser.get("science_research"))
+                .history((Float) this.currentUser.get("history"))
+                .build();
+    }
+
+
+    private void updateParseUserOnline() {
+        this.currentUser.put("age",fbUser.getAge());
+        this.currentUser.put("arts_sports", fbUser.getArts_sports());
+        this.currentUser.put("gender",fbUser.getGender());
+        this.currentUser.put("geography", fbUser.getGeography());
+        this.currentUser.put("literature",fbUser.getLiterature());
+        this.currentUser.put("math_science", fbUser.getMath_science());
+        this.currentUser.put("practical",fbUser.getPractical());
+        this.currentUser.put("religion",fbUser.getReligion());
+        this.currentUser.put("number_loans", fbUser.getNumber_loans());
+        this.currentUser.put("social_science", fbUser.getSocial_science());
+        this.currentUser.put("science_research", fbUser.getScience_research());
+        this.currentUser.put("history",fbUser.getHistory());
+        this.currentUser.saveInBackground();
+
+    }
+
+    private void saveAllUserDataToSharedPreferences(FacebookUserData fbUser) {
+        editor.putFloat(Constants.AGE, fbUser.getAge());
+        editor.putFloat(Constants.ARTS_SPORTS, fbUser.getArts_sports());
+        editor.putFloat(Constants.GENDER, fbUser.getGender());
+        editor.putFloat(Constants.GEOGRAPHY, fbUser.getGeography());
+        editor.putFloat(Constants.HISTORY, fbUser.getHistory());
+        editor.putFloat(Constants.LITERATURE, fbUser.getLiterature());
+        editor.putFloat(Constants.MATH_SCIENCES, fbUser.getMath_science());
+        editor.putFloat(Constants.NUMBER_LOANS, fbUser.getNumber_loans());
+        editor.putFloat(Constants.RELIGION, fbUser.getReligion());
+        editor.putFloat(Constants.SOCIAL_SCIENCES, fbUser.getSocial_science());
+        editor.putFloat(Constants.SCIENCE_RESEARCH, fbUser.getScience_research());
+        editor.putFloat(Constants.PRACTICAL, fbUser.getPractical());
+        editor.apply();
+    }
+
+
 
     public void createFragments() {
         tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
@@ -150,9 +264,9 @@ public class MainActivity extends AppCompatActivity
 
         tabs.setViewPager(pager);
     }
+
     //methods for creating database in android storage
-    private void copyDataBase() throws IOException
-    {
+    private void copyDataBase() throws IOException {
         InputStream mInput = getApplicationContext().getAssets().open(DB_NAME);
         String outFileName = DB_PATH + DB_NAME;
 
@@ -253,7 +367,7 @@ public class MainActivity extends AppCompatActivity
     public void initRecommendationCard() {
         List<Card> myCardlist = new ArrayList<>();
 
-        for (Recommendation rec : recommendations){
+        for (Recommendation rec : recommendations) {
             myCardlist.add(createRecommendationCard(rec));
         }
 
@@ -268,7 +382,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public Card createRecommendationCard(Recommendation book){
+    public Card createRecommendationCard(Recommendation book) {
         CardWrapper cardWrapper = new CardWrapper(this, book);
         MyExpandCard cardInside = new MyExpandCard(this, book);
         cardWrapper.addCardExpand(cardInside);
@@ -286,7 +400,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void loadLibraryBooksFromDatabase() {
-        Runnable runnable= new Runnable() {
+        Runnable runnable = new Runnable() {
             @Override
             public void run() {
                 DBCDatabase db = new DBCDatabase(MainActivity.getInstance().getApplicationContext());
@@ -296,7 +410,7 @@ public class MainActivity extends AppCompatActivity
             }
         };
 
-        Thread mThread=new Thread(runnable);
+        Thread mThread = new Thread(runnable);
         mThread.start();
 
     }
@@ -324,7 +438,7 @@ public class MainActivity extends AppCompatActivity
     public void initLibraryCards() {
         List<Card> myCardlist = new ArrayList<>();
 
-        for (LibraryBook lb : libraryBooks){
+        for (LibraryBook lb : libraryBooks) {
             myCardlist.add(createLibraryCard(lb));
         }
 
@@ -337,6 +451,37 @@ public class MainActivity extends AppCompatActivity
             cardListView.setAdapter(mCardArrayAdapter);
         }
     }
+
+    private String getPredictUserClass(UserToClassify user) {
+        String predictedClass = "";
+        String[] featureHeader = Constants.LIST_FEATURES;
+        Instances userInstance = FeatureGenerator.createEmptyInstances(featureHeader, false); // makeClassLabel);
+// Calculate features (without class label)
+        HashMap<String, Float> featureMapUser =
+                FeatureGenerator.processUser(user);
+
+        // Aggregate features in single Weka instance
+        int attributeSize = featureMapUser.size() + 1;
+        Instance instance = new Instance(attributeSize); // including class classLabel
+
+        // Filling features for accelerometer
+        for (String feature : featureMapUser.keySet()) {
+            float value = featureMapUser.get(feature);
+            Attribute attr = userInstance.attribute(feature);
+            instance.setValue(attr, value);
+        }
+
+        instance.setDataset(userInstance);
+        WekaWrapper mJ48=new J48Wrapper();
+        predictedClass=mJ48.predict(instance);
+        Log.i("Prediction",""+String.valueOf(predictedClass));
+        return predictedClass;
+    }
+
+
+
+
+
 
     public class DatabaseTask extends AsyncTask {
 
@@ -364,7 +509,5 @@ public class MainActivity extends AppCompatActivity
             return response;
         }
     }
-
-
 
 }

@@ -1,76 +1,38 @@
 package com.kmpdip.booksio.classification;
 
-import android.os.Environment;
 import android.util.Log;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-
 import weka.classifiers.Classifier;
-import weka.classifiers.trees.J48;
 import weka.core.Instance;
-import weka.core.Instances;
 
 public class J48Wrapper extends WekaWrapper {
-	
-	Classifier classifier = null;
+
+    Classifier classifier = null;
 
     @Override
-	public Instances loadInstancesFromArffFile(String fileName) {
+    public String predict(Instance i) {
+        String resultClass = null;
+        try {
 
-		String dirPath =
-				Environment.getExternalStorageDirectory()
-						+ "/"
-						+ Constants.WORKING_DIR_NAME;
-		String filePath = dirPath + "/" + fileName;
+            Object[] s = new Object[i.numAttributes()];
 
-		try {
-			BufferedReader reader =
-					new BufferedReader(new FileReader(filePath));
-			Instances data = new Instances(reader);
-			if (data.classIndex() == -1)
-				data.setClassIndex(data.numAttributes() - 1);
-			return data;
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			Log.e(TAG, "loadInstancesFromArffFile() error : " + e.getMessage());
-		}
+            for (int j = 0; j < s.length; j++) {
+                if (!i.isMissing(j)) {
 
-		return null;
-	}
+                    s[j] = new Double(i.value(j));
+                }
+            }
 
-	@Override
-	public void train(Instances instances) {
-	}
 
-	@Override
-	public String predict(Instance instance) {
-		String resultClass = null;
-		try {
-			Object[] s = new Object[instance.numAttributes()];
+            double result = DecisionTreeModel.classify(s);
+            resultClass = String.valueOf((int)result);
 
-			for (int j = 0; j < s.length; j++) {
-				if (!instance.isMissing(j)) {
-					if (instance.attribute(j).isNominal())
-						s[j] = new String(instance.stringValue(j));
-					else if (instance.attribute(j).isNumeric())
-						s[j] = new Double(instance.value(j));
-				}
-			}
+        } catch (Exception e) {
+            Log.i("Predict", e.toString() + "error message:" + e.getMessage());
+        }
 
-			// set class value to missing
-			s[instance.classIndex()] = null;
-			Log.i(TAG, "Instance added : " + DecisionTreeModel.classify(s));
-			double result = DecisionTreeModel.classify(s);
-			resultClass = String.valueOf(result);
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return resultClass;
-	}
+        return resultClass;
+    }
 
 
 }
