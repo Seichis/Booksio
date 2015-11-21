@@ -24,7 +24,7 @@ public class MyExpandCard extends CardExpand implements ICard {
         if (book.getClass().getSimpleName().equals("Recommendation")){
             super.setInnerLayout(R.layout.inner_card_rec);
         }else if (book.getClass().getSimpleName().equals("LibraryBook")){
-            super.setInnerLayout(R.layout.card_header_library);
+            super.setInnerLayout(R.layout.inner_card_library);
     }
         this.book = book;
     }
