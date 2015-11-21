@@ -27,6 +27,9 @@ public class DBCDatabase extends SQLiteAssetHelper {
     }
 
     public ArrayList getBooks(String userClass, List<String> hasRead) {
+        int counter = 0;
+        ArrayList bookList = new ArrayList();
+        boolean inLibrary;
         String hasReadString = "";
         for (String s : hasRead) {
             hasReadString += '"' + s + '"' + ",";
@@ -36,16 +39,17 @@ public class DBCDatabase extends SQLiteAssetHelper {
                 rawQuery("select 0 _id, book_id from Books where user_class LIKE '%" + userClass + "%'" +
                         " AND book_id NOT IN (" + hasReadString + ")", null);
         Log.i("cursor", "  " + c.getCount());
-        int counter = 0;
-        ArrayList bookList = new ArrayList();
-
 
         if (c != null) {
             if (c.moveToFirst()) {
                 do {
-                    bookList.add(c.getString(c.getColumnIndex("book_id"))); // "Title" is the field name(column) of the Table
-                    counter++;
-                } while (c.moveToNext() && counter < 20);
+                    String book_id = c.getString(c.getColumnIndex("book_id"));
+                    inLibrary = isInLibrary(book_id);
+                    if (inLibrary == false) {
+                        bookList.add(book_id); // "Title" is the field name(column) of the Table
+                        counter++;
+                    }
+                } while (c.moveToNext() && counter < 5);
             }
         }
         /////////////////
@@ -94,6 +98,16 @@ public class DBCDatabase extends SQLiteAssetHelper {
             String sqlUpdate = "UPDATE Library SET rating = ? AND status = 2 WHERE book_id = ?";
             getWritableDatabase().execSQL(sqlUpdate, new Object[] {(int)rating, book.getID()});
             Log.i("saved", "updated object "+book.getTitle());
+        }
+    }
+
+    public boolean isInLibrary (String book_id){
+        String sqlCheck = "select 0 _id, book_id from Library where book_id ='"+book_id+"'";
+        Cursor cursor = getReadableDatabase().rawQuery(sqlCheck, null);
+        if (cursor.getCount() == 0) {
+            return false;
+        }else {
+            return true;
         }
     }
 
