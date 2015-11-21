@@ -1,6 +1,7 @@
 package com.kmpdip.booksio.cards;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.percent.PercentRelativeLayout;
 import android.transition.TransitionManager;
 import android.util.Log;
@@ -35,7 +36,7 @@ public class MyCardHeader extends CardHeader implements ICard{
             Log.i("BookClass","inside if");
             super.setInnerLayout(R.layout.card_header_rec);
         }else if (book.getClass().getSimpleName().equals("LibraryBook")){
-            super.setInnerLayout(R.layout.card_header_library);
+            super.setInnerLayout(R.layout.card_header_library_share);
         }
         this.context = context;
         this.book = book;
@@ -54,7 +55,7 @@ public class MyCardHeader extends CardHeader implements ICard{
     }
 
 
-
+    @Override
     public void setRecommendationCardView(final View view) {
         final Card rec=this.getParentCard();
         ImageView cover = (ImageView) view.findViewById(R.id.cover_img);
@@ -108,7 +109,29 @@ public class MyCardHeader extends CardHeader implements ICard{
 
     @Override
     public void setLibraryCardView(View view) {
+        final Card rec=this.getParentCard();
+        ImageView cover = (ImageView) view.findViewById(R.id.cover_img_share);
+        RatingBar ratingBar = (RatingBar) view.findViewById(R.id.ratingBar_share);
+        TextView titleTextView = (TextView) view.findViewById(R.id.title_share);
+        TextView authorTextView = (TextView) view.findViewById(R.id.author_share);
+        Button shareButton = (Button) view.findViewById(R.id.share_button);
 
+        titleTextView.setText(this.book.getTitle());
+        authorTextView.setText("By : " + this.book.getAuthor());
+        cover.setImageBitmap(book.getImage());
+        ratingBar.setStepSize((float) 1.0);
+
+        shareButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View buttonView) {
+                Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+                sharingIntent.setType("text/plain");
+                String shareBody = "I think you will find this interesting: "+ book.getTitle() + " by " + book.getAuthor() + ". Check it on DBC App!";
+                sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "DBC - Check this book!");
+                sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+                context.startActivity(Intent.createChooser(sharingIntent, "Share via"));
+            }
+        });
     }
 
 
