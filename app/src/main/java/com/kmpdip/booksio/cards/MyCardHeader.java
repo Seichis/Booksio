@@ -11,10 +11,12 @@ import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
+import com.kmpdip.booksio.MainActivity;
 import com.kmpdip.booksio.R;
 import com.kmpdip.booksio.data.database.DBCDatabase;
 import com.kmpdip.booksio.data.structure.Book;
 
+import it.gmariotti.cardslib.library.internal.Card;
 import it.gmariotti.cardslib.library.internal.CardHeader;
 
 /**
@@ -74,19 +76,20 @@ public class MyCardHeader extends CardHeader implements ICard{
         likeButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
-            public void onClick(View view) {
+            public void onClick(View buttonView) {
                 db.updateLibrary(book, 1);
                 db.close();
-                removeCardFromAdapter(view.getRootView());
+                animateCard(view);
+
             }
 
         });
         dislikeButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(View buttonView) {
                 db.updateLibrary(book, 0);
                 db.close();
-                removeCardFromAdapter(view);
+                animateCard(view);
             }
         });
 
@@ -95,23 +98,25 @@ public class MyCardHeader extends CardHeader implements ICard{
                                         boolean fromUser) {
                 db.addRating(book, rating);
                 db.close();
-                removeCardFromAdapter(view);
-
+                animateCard(view);
             }
         });
 
     }
 
-    private void removeCardFromAdapter(View view){
-        // Prepare the View for the animation
-        view.setVisibility(View.VISIBLE);
-        view.setAlpha(0.0f);
-
-// Start the animation
-        view.animate()
-                .translationY(view.getHeight())
-                .alpha(1.0f);
+    private void animateCard(View view){
+//        // Prepare the View for the animation
+//        view.setVisibility(View.VISIBLE);
+//        view.setAlpha(0.0f);
+//
+//// Start the animation
+//        view.animate()
+//                .translationY(view.getHeight())
+//                .alpha(1.0f);
+        MainActivity.getInstance().removeCardFromList(this.getParentCard());
     }
+
+
 
     @Override
     public void setLibraryCardView(View view) {

@@ -75,6 +75,8 @@ public class MainActivity extends AppCompatActivity
     BookFromXml bookFromXml = BookFromXml.getInstance();
     List<Recommendation> recommendations = new ArrayList<>();
     List<LibraryBook> libraryBooks = new ArrayList<>();
+    private static List<Card> myRecCardlist = new ArrayList<>();
+
     // Initialize fragment resources
     private final Handler mHandler = new Handler() {
         @Override
@@ -103,7 +105,7 @@ public class MainActivity extends AppCompatActivity
     private PagerSlidingTabStrip tabs;
     private ViewPager pager;
     private FragmentAdapter adapter;
-
+    CardArrayAdapter mCardArrayAdapterRec;
     public static MainActivity getInstance() {
         return mainActivity;
     }
@@ -121,6 +123,7 @@ public class MainActivity extends AppCompatActivity
 
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         editor = preferences.edit();
+        mCardArrayAdapterRec = new CardArrayAdapter(this, myRecCardlist);
 
         Log.i("Shared", "" + String.valueOf(preferences.getBoolean(Constants.HAS_LOGGED_IN_AGAIN, false)));
         // If it is the first time the user logs in the application we save the data in shared preferences and extract all the data we need from the facebook account
@@ -310,19 +313,17 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void initRecommendationCard() {
-        List<Card> myCardlist = new ArrayList<>();
 
         for (Recommendation rec : recommendations) {
-            myCardlist.add(createRecommendationCard(rec));
+            myRecCardlist.add(createRecommendationCard(rec));
         }
 
         //Set the arrayAdapter
-        CardArrayAdapter mCardArrayAdapter = new CardArrayAdapter(this, myCardlist);
         CardListView cardListView = (CardListView) this.findViewById(R.id.myList);
 
         //animCardArrayAdapter.setInitialDelayMillis(500);
         if (cardListView != null) {
-            cardListView.setAdapter(mCardArrayAdapter);
+            cardListView.setAdapter(mCardArrayAdapterRec);
         }
     }
 
@@ -450,5 +451,8 @@ public class MainActivity extends AppCompatActivity
             return response;
         }
     }
-
+    public void removeCardFromList(Card usedCard) {
+        myRecCardlist.remove(usedCard);
+        mCardArrayAdapterRec.notifyDataSetChanged();
+    }
 }
