@@ -54,8 +54,9 @@ public class MyCardHeader extends CardHeader implements ICard{
     }
 
 
-    @Override
+
     public void setRecommendationCardView(final View view) {
+        final Card rec=this.getParentCard();
         ImageView cover = (ImageView) view.findViewById(R.id.cover_img);
         Button likeButton = (Button) view.findViewById(R.id.like_button);
         Button dislikeButton = (Button) view.findViewById(R.id.dislike_button);
@@ -79,7 +80,7 @@ public class MyCardHeader extends CardHeader implements ICard{
             public void onClick(View buttonView) {
                 db.updateLibrary(book, 1);
                 db.close();
-                animateCard(view);
+                MainActivity.getInstance().removeCardFromList(rec);
 
             }
 
@@ -89,7 +90,7 @@ public class MyCardHeader extends CardHeader implements ICard{
             public void onClick(View buttonView) {
                 db.updateLibrary(book, 0);
                 db.close();
-                animateCard(view);
+                MainActivity.getInstance().removeCardFromList(rec);
             }
         });
 
@@ -98,29 +99,18 @@ public class MyCardHeader extends CardHeader implements ICard{
                                         boolean fromUser) {
                 db.addRating(book, rating);
                 db.close();
-                animateCard(view);
+                MainActivity.getInstance().removeCardFromList(rec);
             }
         });
 
     }
-
-    private void animateCard(View view){
-//        // Prepare the View for the animation
-//        view.setVisibility(View.VISIBLE);
-//        view.setAlpha(0.0f);
-//
-//// Start the animation
-//        view.animate()
-//                .translationY(view.getHeight())
-//                .alpha(1.0f);
-        MainActivity.getInstance().removeCardFromList(this.getParentCard());
-    }
-
 
 
     @Override
     public void setLibraryCardView(View view) {
 
     }
+
+
 }
 

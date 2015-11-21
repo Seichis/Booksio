@@ -25,7 +25,6 @@ import android.widget.TextView;
 
 import com.astuetz.PagerSlidingTabStrip;
 import com.kmpdip.booksio.cards.CardWrapper;
-import com.kmpdip.booksio.cards.MyExpandCard;
 import com.kmpdip.booksio.classification.Constants;
 import com.kmpdip.booksio.classification.FeatureGenerator;
 import com.kmpdip.booksio.classification.J48Wrapper;
@@ -49,14 +48,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
 import it.gmariotti.cardslib.library.internal.Card;
 import it.gmariotti.cardslib.library.internal.CardArrayAdapter;
-import it.gmariotti.cardslib.library.internal.ViewToClickToExpand;
 import it.gmariotti.cardslib.library.view.CardListView;
 import weka.core.Attribute;
 import weka.core.Instance;
@@ -67,16 +64,15 @@ public class MainActivity extends AppCompatActivity
     private static MainActivity mainActivity;
     private static String DB_PATH = "/data/data/com.kmpdip.booksio/database/";
     private static String DB_NAME = "/dbcdatabase.db";
+    private static List<Card> myRecCardlist = new ArrayList<>();
     public Context context;
     public String userClass;
     public DatabaseTask task;
     ParseUser currentUser;
     FacebookUserData fbUser;
     BookFromXml bookFromXml = BookFromXml.getInstance();
-    List<Recommendation> recommendations = new ArrayList<>();
+    List<Recommendation> recommendations;
     List<LibraryBook> libraryBooks = new ArrayList<>();
-    private static List<Card> myRecCardlist = new ArrayList<>();
-
     // Initialize fragment resources
     private final Handler mHandler = new Handler() {
         @Override
@@ -90,22 +86,13 @@ public class MainActivity extends AppCompatActivity
     ParseOperations mParseOperations;
     FacebookOperations mFacebookOperations;
     TextView mTextView;
-    List<String> randomBooks = Arrays.asList("870970-basis:27069703", "870970-basis:51039629", "870970-basis:50653463", "870970-basis:05636078", "870970-basis:28410352",
-            "870970-basis:23461854",
-            "870970-basis:21526231",
-            "870970-basis:26527988",
-            "870970-basis:51039629",
-            "870970-basis:51255372",
-            "870970-basis:24633489",
-            "870970-basis:50653463",
-            "870970-basis:51041631",
-            "870970-basis:42511773");
     UserToClassify userToClassify;
+    CardArrayAdapter mCardArrayAdapterRec;
     //this is the class that the user belongs to
     private PagerSlidingTabStrip tabs;
     private ViewPager pager;
     private FragmentAdapter adapter;
-    CardArrayAdapter mCardArrayAdapterRec;
+
     public static MainActivity getInstance() {
         return mainActivity;
     }
@@ -330,16 +317,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     public Card createRecommendationCard(Recommendation book) {
         CardWrapper cardWrapper = new CardWrapper(this, book);
-        MyExpandCard cardInside = new MyExpandCard(this, book);
-        cardWrapper.addCardExpand(cardInside);
-
-        //Add a viewToClickExpand to enable click on whole card
-        ViewToClickToExpand viewToClickToExpand =
-                ViewToClickToExpand.builder()
-                        .highlightView(false)
-                        .setupCardElement(ViewToClickToExpand.CardElementUI.CARD);
-        cardWrapper.setViewToClickToExpand(viewToClickToExpand);
-        cardWrapper.setSwipeable(true);
         return cardWrapper;
     }
 
@@ -365,17 +342,6 @@ public class MainActivity extends AppCompatActivity
     public Card createLibraryCard(LibraryBook book) {
 
         CardWrapper cardWrapper = new CardWrapper(this, book);
-        MyExpandCard cardInside = new MyExpandCard(this, book);
-        cardWrapper.addCardExpand(cardInside);
-
-        //Add a viewToClickExpand to enable click on whole card
-        ViewToClickToExpand viewToClickToExpand =
-                ViewToClickToExpand.builder()
-                        .highlightView(false)
-                        .setupCardElement(ViewToClickToExpand.CardElementUI.CARD);
-        cardWrapper.setViewToClickToExpand(viewToClickToExpand);
-        cardWrapper.setSwipeable(true);
-
         return cardWrapper;
 
     }
@@ -424,6 +390,21 @@ public class MainActivity extends AppCompatActivity
         return predictedClass;
     }
 
+    public void removeCardFromList(Card usedCard) {
+        myRecCardlist.remove(usedCard);
+        mCardArrayAdapterRec.remove(usedCard);
+        mCardArrayAdapterRec.notifyDataSetChanged();
+        checkCardList();
+    }
+
+    private void checkCardList() {
+        if (myRecCardlist.size() < 3) {
+            task.cancel(false);
+            task = null;
+            task = new DatabaseTask();
+            task.execute();
+        }
+    }
 
     public class DatabaseTask extends AsyncTask {
 
@@ -437,9 +418,9 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         protected List<HashMap<String, String>> doInBackground(Object[] params) {
+            recommendations = new ArrayList<>();
             DBCDatabase db = new DBCDatabase(MainActivity.getInstance().getApplicationContext());
-
-            ArrayList books = db.getBooks(userClass, randomBooks);
+            ArrayList books = db.getBooks(userClass);
             List<HashMap<String, String>> response = new ArrayList<>();
             for (int j = 0; j < books.size(); j++) {
                 response.add(bookFromXml.consumeWebService((String) books.get(j)));
@@ -450,9 +431,5 @@ public class MainActivity extends AppCompatActivity
 
             return response;
         }
-    }
-    public void removeCardFromList(Card usedCard) {
-        myRecCardlist.remove(usedCard);
-        mCardArrayAdapterRec.notifyDataSetChanged();
     }
 }

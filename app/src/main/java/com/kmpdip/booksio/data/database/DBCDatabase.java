@@ -26,18 +26,13 @@ public class DBCDatabase extends SQLiteAssetHelper {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
-    public ArrayList getBooks(String userClass, List<String> hasRead) {
+    public ArrayList getBooks(String userClass) {
         int counter = 0;
         ArrayList bookList = new ArrayList();
         boolean inLibrary;
-        String hasReadString = "";
-        for (String s : hasRead) {
-            hasReadString += '"' + s + '"' + ",";
-        }
-        hasReadString = hasReadString.substring(0, hasReadString.length() - 1);
+
         Cursor c = getReadableDatabase().
-                rawQuery("select 0 _id, book_id from Books where user_class LIKE '%" + userClass + "%'" +
-                        " AND book_id NOT IN (" + hasReadString + ")", null);
+                rawQuery("select 0 _id, book_id from Books where user_class LIKE '%" + userClass + "%'", null);
         Log.i("cursor", "  " + c.getCount());
 
         if (c != null) {
