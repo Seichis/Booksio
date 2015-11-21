@@ -35,10 +35,12 @@ import com.kmpdip.booksio.data.structure.FacebookUserData;
 import com.kmpdip.booksio.data.structure.LibraryBook;
 import com.kmpdip.booksio.data.structure.Recommendation;
 import com.kmpdip.booksio.data.structure.UserToClassify;
+import com.kmpdip.booksio.facebookoperations.FacebookOperations;
 import com.kmpdip.booksio.fragments.FragmentAdapter;
 import com.kmpdip.booksio.fragments.LibraryFragment;
 import com.kmpdip.booksio.fragments.RecommendationsFragment;
 import com.kmpdip.booksio.onlineoperations.BookFromXml;
+import com.kmpdip.booksio.parseoperations.ParseOperations;
 import com.parse.ParseUser;
 
 import java.io.File;
@@ -63,20 +65,16 @@ import weka.core.Instances;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, RecommendationsFragment.RecommendationsFragmentListener, LibraryFragment.LibraryFragmentListener {
     private static MainActivity mainActivity;
-    ParseUser currentUser;
     private static String DB_PATH = "/data/data/com.kmpdip.booksio/database/";
-    private static String DB_NAME = "/databases/dbcdatabase.db";
+    private static String DB_NAME = "/dbcdatabase.db";
     public Context context;
     public String userClass;
     public DatabaseTask task;
+    ParseUser currentUser;
     FacebookUserData fbUser;
     BookFromXml bookFromXml = BookFromXml.getInstance();
     List<Recommendation> recommendations = new ArrayList<>();
     List<LibraryBook> libraryBooks = new ArrayList<>();
-    Random random;
-    SharedPreferences preferences;
-    SharedPreferences.Editor editor;
-
     // Initialize fragment resources
     private final Handler mHandler = new Handler() {
         @Override
@@ -84,6 +82,11 @@ public class MainActivity extends AppCompatActivity
             initLibraryCards();
         }
     };
+    Random random;
+    SharedPreferences preferences;
+    SharedPreferences.Editor editor;
+    ParseOperations mParseOperations;
+    FacebookOperations mFacebookOperations;
     TextView mTextView;
     List<String> randomBooks = Arrays.asList("870970-basis:27069703", "870970-basis:51039629", "870970-basis:50653463", "870970-basis:05636078", "870970-basis:28410352",
             "870970-basis:23461854",
@@ -95,13 +98,11 @@ public class MainActivity extends AppCompatActivity
             "870970-basis:50653463",
             "870970-basis:51041631",
             "870970-basis:42511773");
+    UserToClassify userToClassify;
     //this is the class that the user belongs to
     private PagerSlidingTabStrip tabs;
     private ViewPager pager;
     private FragmentAdapter adapter;
-
-    UserToClassify userToClassify;
-    private ParseUser facebookDataToUserObj;
 
     public static MainActivity getInstance() {
         return mainActivity;
@@ -114,31 +115,30 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         mainActivity = this;
         random = new Random();
-        currentUser=ParseUser.getCurrentUser();
+        currentUser = ParseUser.getCurrentUser();
+        mParseOperations = ParseOperations.getInstance(currentUser);
+        mFacebookOperations = FacebookOperations.getInstance(currentUser);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         editor = preferences.edit();
 
+        Log.i("Shared", "" + String.valueOf(preferences.getBoolean(Constants.HAS_LOGGED_IN_AGAIN, false)));
         // If it is the first time the user logs in the application we save the data in shared preferences and extract all the data we need from the facebook account
         //We emulate the extraction of these data since we needed to take permission to use the book information of each user so it needed more time than we had.
-        if (!preferences.getBoolean(Constants.HAS_LOGGED_IN_AGAIN,false)){
-            fbUser=getFbUserWithData();
+        if (preferences.getBoolean(Constants.HAS_LOGGED_IN_AGAIN, false)) {
+            userToClassify = mParseOperations.getUserFeatures();
+        } else {
+            // If it is not the first time he logs in the Parse user object should contain all the information needed in order to classify the user
+            fbUser = mFacebookOperations.getFbUserWithData();
             saveAllUserDataToSharedPreferences(fbUser);
-            updateParseUserOnline();
-            userToClassify = getUserFeatures();
+            mParseOperations.updateParseUserOnline(fbUser);
+            userToClassify = mParseOperations.getUserFeatures();
             editor.putBoolean(Constants.HAS_LOGGED_IN_AGAIN, true);
+            editor.commit();
         }
-        // If it is not the first time he logs in the Parse user object should contain all the information needed in order to classify the user
-        else{
-            userToClassify = getUserFeatures();
-        }
-
-
-
-
-
 
         userClass = getPredictUserClass(userToClassify);
+
         setSupportActionBar(toolbar);
 
 
@@ -161,6 +161,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         createFragments();
+
         File dbFile = new File(DB_PATH + DB_NAME);
         if (dbFile.exists() == false) {
             try {
@@ -175,63 +176,8 @@ public class MainActivity extends AppCompatActivity
         task = new DatabaseTask();
         task.execute();
         Log.i("Async", String.valueOf(task.getStatus()));
-
-
     }
 
-    private FacebookUserData getFbUserWithData() {
-        FacebookUserData.FacebookUserDataBuilder fbBuilder = new FacebookUserData.FacebookUserDataBuilder();
-        return (FacebookUserData)fbBuilder.currentUser( this.currentUser)
-                .history((float) (random.nextGaussian()*0.5+1))
-                .religion((float) (random.nextGaussian()*0.5+1))
-                .practical((float) (random.nextGaussian()*0.5+1))
-                .math_science((float) (random.nextGaussian()*0.5+1))
-                .arts_sports((float) (random.nextGaussian()*0.5+1))
-                .gender((float) (random.nextInt(1)))
-                .number_loans((float) (random.nextInt(1000)))
-                .geography((float) (random.nextGaussian()*0.5+1))
-                .literature((float) (random.nextGaussian()*0.5+1))
-                .social_science((float) (random.nextGaussian()*0.5+1))
-                .science_research((float) (random.nextGaussian()*0.5+1))
-                .age((float) (random.nextInt(70)))
-                .build();
-    }
-
-    private UserToClassify getUserFeatures() {
-
-        UserToClassify.UserToClassifyBuilder userBuilder=new UserToClassify.UserToClassifyBuilder();
-        return userBuilder.age((Float) this.currentUser.get("age"))
-                .arts_sports((Float) this.currentUser.get("arts_sports"))
-                .gender((Float) this.currentUser.get("gender"))
-                .geography((Float) this.currentUser.get("geography"))
-                .literature((Float) this.currentUser.get("literature"))
-                .math_science((Float) this.currentUser.get("math_science"))
-                .practical((Float) this.currentUser.get("practical"))
-                .religion((Float) this.currentUser.get("religion"))
-                .number_loans((Float) this.currentUser.get("number_loans"))
-                .social_science((Float) this.currentUser.get("social_science"))
-                .science_research((Float) this.currentUser.get("science_research"))
-                .history((Float) this.currentUser.get("history"))
-                .build();
-    }
-
-
-    private void updateParseUserOnline() {
-        this.currentUser.put("age",fbUser.getAge());
-        this.currentUser.put("arts_sports", fbUser.getArts_sports());
-        this.currentUser.put("gender",fbUser.getGender());
-        this.currentUser.put("geography", fbUser.getGeography());
-        this.currentUser.put("literature",fbUser.getLiterature());
-        this.currentUser.put("math_science", fbUser.getMath_science());
-        this.currentUser.put("practical",fbUser.getPractical());
-        this.currentUser.put("religion",fbUser.getReligion());
-        this.currentUser.put("number_loans", fbUser.getNumber_loans());
-        this.currentUser.put("social_science", fbUser.getSocial_science());
-        this.currentUser.put("science_research", fbUser.getScience_research());
-        this.currentUser.put("history",fbUser.getHistory());
-        this.currentUser.saveInBackground();
-
-    }
 
     private void saveAllUserDataToSharedPreferences(FacebookUserData fbUser) {
         editor.putFloat(Constants.AGE, fbUser.getAge());
@@ -248,7 +194,6 @@ public class MainActivity extends AppCompatActivity
         editor.putFloat(Constants.PRACTICAL, fbUser.getPractical());
         editor.apply();
     }
-
 
 
     public void createFragments() {
@@ -404,7 +349,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void run() {
                 DBCDatabase db = new DBCDatabase(MainActivity.getInstance().getApplicationContext());
-                libraryBooks = db.getBooksDetails(2);
+                libraryBooks = db.getBooksDetails(1);
                 db.close();
                 mHandler.sendEmptyMessage(0);
             }
@@ -472,15 +417,11 @@ public class MainActivity extends AppCompatActivity
         }
 
         instance.setDataset(userInstance);
-        WekaWrapper mJ48=new J48Wrapper();
-        predictedClass=mJ48.predict(instance);
-        Log.i("Prediction",""+String.valueOf(predictedClass));
+        WekaWrapper mJ48 = new J48Wrapper();
+        predictedClass = mJ48.predict(instance);
+        Log.i("Prediction", "" + String.valueOf(predictedClass));
         return predictedClass;
     }
-
-
-
-
 
 
     public class DatabaseTask extends AsyncTask {

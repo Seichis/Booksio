@@ -1,6 +1,8 @@
 package com.kmpdip.booksio.cards;
 
 import android.content.Context;
+import android.support.percent.PercentRelativeLayout;
+import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,13 +49,11 @@ public class MyCardHeader extends CardHeader implements ICard{
         }else if (book.getClass().getSimpleName().equals("LibraryBook")){
             setLibraryCardView(view);
         }
-
-
     }
 
 
     @Override
-    public void setRecommendationCardView(View view) {
+    public void setRecommendationCardView(final View view) {
         ImageView cover = (ImageView) view.findViewById(R.id.cover_img);
         Button likeButton = (Button) view.findViewById(R.id.like_button);
         Button dislikeButton = (Button) view.findViewById(R.id.dislike_button);
@@ -77,6 +77,7 @@ public class MyCardHeader extends CardHeader implements ICard{
             public void onClick(View view) {
                 db.updateLibrary(book, 1);
                 db.close();
+                removeCardFromAdapter(view.getRootView());
             }
 
         });
@@ -85,6 +86,7 @@ public class MyCardHeader extends CardHeader implements ICard{
             public void onClick(View view) {
                 db.updateLibrary(book, 0);
                 db.close();
+                removeCardFromAdapter(view);
             }
         });
 
@@ -93,10 +95,22 @@ public class MyCardHeader extends CardHeader implements ICard{
                                         boolean fromUser) {
                 db.addRating(book, rating);
                 db.close();
+                removeCardFromAdapter(view);
 
             }
         });
 
+    }
+
+    private void removeCardFromAdapter(View view){
+        // Prepare the View for the animation
+        view.setVisibility(View.VISIBLE);
+        view.setAlpha(0.0f);
+
+// Start the animation
+        view.animate()
+                .translationY(view.getHeight())
+                .alpha(1.0f);
     }
 
     @Override
