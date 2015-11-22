@@ -2,14 +2,25 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <group android:checkableBehavior="single">
-        <item android:id="@+id/nav_camara" android:icon="@android:drawable/ic_menu_camera"
-            android:title="Import" />
-        <item android:id="@+id/nav_gallery" android:icon="@android:drawable/ic_menu_gallery"
-            android:title="Gallery" />
-        <item android:id="@+id/nav_slideshow" android:icon="@android:drawable/ic_menu_slideshow"
-            android:title="Slideshow" />
-        <item android:id="@+id/nav_manage" android:icon="@android:drawable/ic_menu_manage"
-            android:title="Tools" />
+        <item android:id="@+id/nav_1" android:src="@drawable/chinese3"
+            android:title="Filosofi/Psykologi" />
+        <item android:id="@+id/nav_2" android:icon="@android:drawable/ic_menu_gallery"
+            android:title="Religion" />
+        <item android:id="@+id/nav_3" android:icon="@android:drawable/ic_menu_slideshow"
+            android:title="Samfundsvidenskab" />
+        <item android:id="@+id/nav_4" android:icon="@android:drawable/ic_menu_manage"
+            android:title="Lokalhistorie" />
+        <item android:id="@+id/nav_5" android:icon="@android:drawable/ic_menu_manage"
+            android:title="Naturvidenskab og matematik" />
+        <item android:id="@+id/nav_6" android:icon="@android:drawable/ic_menu_manage"
+            android:title="Praktiske fag. Lægevidenskab" />
+        <item android:id="@+id/nav_7" android:icon="@android:drawable/ic_menu_manage"
+            android:title="Kunst/Film/Musik/Spil/Idræt" />
+        <item android:id="@+id/nav_8" android:icon="@android:drawable/ic_menu_manage"
+            android:title="Litteratur/Sprogt" />
+        <item android:id="@+id/nav_9" android:icon="@android:drawable/ic_menu_manage"
+            android:title="Historie" />
+
     </group>
 
     <item android:title="Communicate">

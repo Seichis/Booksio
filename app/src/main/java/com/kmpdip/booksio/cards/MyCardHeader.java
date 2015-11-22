@@ -71,7 +71,12 @@ public class MyCardHeader extends CardHeader implements ICard{
         authorTextView.setText(String.valueOf("By : " + this.book.getAuthor()));
         numberFriendsTextView.setText(String.valueOf(this.book.getFriendsNumber()));
         genreTextView.setText(String.valueOf("Genres : " + this.book.getGenre()));
-        cover.setImageBitmap(book.getImage());
+        if(book.getImage()!=null){
+            cover.setImageBitmap(book.getImage());
+        }else{
+            cover.setImageDrawable(context.getResources().getDrawable(R.drawable.book1));
+        }
+
         ratingBar.setStepSize((float) 1.0);
         //Set value in text views
         final DBCDatabase db = new DBCDatabase(context);
@@ -109,7 +114,6 @@ public class MyCardHeader extends CardHeader implements ICard{
 
     @Override
     public void setLibraryCardView(View view) {
-        final Card rec=this.getParentCard();
         ImageView cover = (ImageView) view.findViewById(R.id.cover_img_share);
         RatingBar ratingBar = (RatingBar) view.findViewById(R.id.ratingBar_share);
         TextView titleTextView = (TextView) view.findViewById(R.id.title_share);
@@ -118,7 +122,11 @@ public class MyCardHeader extends CardHeader implements ICard{
 
         titleTextView.setText(this.book.getTitle());
         authorTextView.setText("By : " + this.book.getAuthor());
-        cover.setImageBitmap(book.getImage());
+        if(book.getImage()!= null) {
+            cover.setImageBitmap(book.getImage());
+        }else{
+            cover.setImageDrawable(context.getResources().getDrawable(R.drawable.book1));
+        }
         ratingBar.setStepSize((float) 1.0);
 
         shareButton.setOnClickListener(new View.OnClickListener() {

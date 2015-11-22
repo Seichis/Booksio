@@ -141,6 +141,27 @@ public class DBCDatabase extends SQLiteAssetHelper {
         return booksDetails;
     }
 
+    public ArrayList getBooksByGenre(String genre){
+        int counter = 0;
+        boolean inLibrary;
+        ArrayList bookGenreList = new ArrayList();
+        Cursor c = getReadableDatabase().
+                rawQuery("select 0 _id, book_id from Books where dk5 LIKE '['" + genre + "%' OR dk5 LIKE '%,'" + genre + "%'", null);
+        if (c != null) {
+            if (c.moveToFirst()) {
+                do {
+                    String book_id = c.getString(c.getColumnIndex("book_id"));
+                    inLibrary = isInLibrary(book_id);
+                    if (inLibrary == false) {
+                        bookGenreList.add(book_id); // "Title" is the field name(column) of the Table
+                        counter++;
+                    }
+                } while (c.moveToNext() && counter < 5);
+            }
+        }
+        return bookGenreList;
+    }
+
     public byte[] convertImage(Bitmap bitmap){
         byte[] image;
         ByteArrayOutputStream stream = new ByteArrayOutputStream();

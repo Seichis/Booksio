@@ -150,6 +150,16 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        navigationView.getMenu().getItem(0).setIcon(R.drawable.chinese3);
+        navigationView.getMenu().getItem(1).setIcon(R.drawable.religion20);
+        navigationView.getMenu().getItem(2).setIcon(R.drawable.society);
+        navigationView.getMenu().getItem(3).setIcon(R.drawable.ejer);
+        navigationView.getMenu().getItem(4).setIcon(R.drawable.science49);
+        navigationView.getMenu().getItem(5).setIcon(R.drawable.wrench108);
+        navigationView.getMenu().getItem(6).setIcon(R.drawable.comedy2);
+        navigationView.getMenu().getItem(7).setIcon(R.drawable.reading21);
+        navigationView.getMenu().getItem(8).setIcon(R.drawable.antique25);
+
         createFragments();
 
         File dbFile = new File(DB_PATH + DB_NAME);
@@ -164,7 +174,7 @@ public class MainActivity extends AppCompatActivity
         mTextView = (TextView) findViewById(R.id.text_view_1);
 
         task = new DatabaseTask();
-        task.execute();
+        //task.execute();
         Log.i("Async", String.valueOf(task.getStatus()));
     }
 
@@ -267,17 +277,23 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camara) {
+        if (id == R.id.nav_1) {
             // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        } else if (id == R.id.nav_2) {
 
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.nav_3) {
 
-        } else if (id == R.id.nav_manage) {
+        } else if (id == R.id.nav_4) {
 
-        } else if (id == R.id.nav_share) {
+        } else if (id == R.id.nav_5) {
 
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.nav_6) {
+
+        } else if (id == R.id.nav_7){
+
+        } else if (id == R.id.nav_8){
+
+        } else if (id == R.id.nav_9){
 
         }
 
@@ -402,7 +418,7 @@ public class MainActivity extends AppCompatActivity
             task.cancel(false);
             task = null;
             task = new DatabaseTask();
-            task.execute();
+            //task.execute();
         }
     }
 
