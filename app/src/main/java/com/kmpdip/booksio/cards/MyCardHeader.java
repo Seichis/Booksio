@@ -16,6 +16,7 @@ import com.kmpdip.booksio.MainActivity;
 import com.kmpdip.booksio.R;
 import com.kmpdip.booksio.data.database.DBCDatabase;
 import com.kmpdip.booksio.data.structure.Book;
+import com.kmpdip.booksio.data.structure.LibraryBook;
 
 import it.gmariotti.cardslib.library.internal.Card;
 import it.gmariotti.cardslib.library.internal.CardHeader;
@@ -35,11 +36,13 @@ public class MyCardHeader extends CardHeader implements ICard{
         if (book.getClass().getSimpleName().equals("Recommendation")){
             Log.i("BookClass","inside if");
             super.setInnerLayout(R.layout.card_header_rec);
+            this.book = book;
         }else if (book.getClass().getSimpleName().equals("LibraryBook")){
             super.setInnerLayout(R.layout.card_header_library_share);
+            this.book =book;
         }
         this.context = context;
-        this.book = book;
+
     }
 
     @Override
@@ -71,8 +74,8 @@ public class MyCardHeader extends CardHeader implements ICard{
         authorTextView.setText(String.valueOf("By : " + this.book.getAuthor()));
         numberFriendsTextView.setText(String.valueOf(this.book.getFriendsNumber()));
         genreTextView.setText(String.valueOf("Tags : " + this.book.getGenre()));
-        if(book.getImage()!=null){
-            cover.setImageBitmap(book.getImage());
+        if(this.book.getImage()!=null){
+            cover.setImageBitmap(this.book.getImage());
         }else{
             cover.setImageDrawable(context.getResources().getDrawable(R.drawable.book2));
         }
@@ -120,6 +123,7 @@ public class MyCardHeader extends CardHeader implements ICard{
 
     @Override
     public void setLibraryCardView(View view) {
+        //final DBCDatabase db = new DBCDatabase(context);
         ImageView cover = (ImageView) view.findViewById(R.id.cover_img_share);
         RatingBar ratingBar = (RatingBar) view.findViewById(R.id.ratingBar_share);
         TextView titleTextView = (TextView) view.findViewById(R.id.title_share);
@@ -129,23 +133,32 @@ public class MyCardHeader extends CardHeader implements ICard{
         titleTextView.setText(this.book.getTitle());
         authorTextView.setText("By : " + this.book.getAuthor());
         if(book.getImage()!= null) {
-            cover.setImageBitmap(book.getImage());
+            cover.setImageBitmap(this.book.getImage());
         }else{
             cover.setImageDrawable(context.getResources().getDrawable(R.drawable.book2));
         }
-        ratingBar.setStepSize((float) 1.0);
-
+        //ratingBar.setStepSize((float) 1.0);
+        ratingBar.setRating(this.book.getRating());
+        Log.i("rating", String.valueOf(this.book.getRating()));
         shareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View buttonView) {
                 Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
                 sharingIntent.setType("text/plain");
-                String shareBody = "I think you will find this interesting: "+ book.getTitle() + " by " + book.getAuthor() + ". Check it on DBC App!";
+                String shareBody = "I think you will find this interesting: " + book.getTitle() + " by " + book.getAuthor() + ". Check it on DBC App!";
                 sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "DBC - Check this book!");
                 sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
                 context.startActivity(Intent.createChooser(sharingIntent, "Share via"));
             }
         });
+
+//        ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
+//            public void onRatingChanged(RatingBar ratingBar, float rating,
+//                                        boolean fromUser) {
+//                db.addRating(this.book, rating);
+//                db.close();
+//            }
+//        });
     }
 
 

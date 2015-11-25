@@ -6,27 +6,13 @@ import android.graphics.Bitmap;
  * Created by Ioanna on 11/16/2015.
  */
 public class LibraryBook extends Book {
-    protected final int status;
-    protected final int rating;
+
     protected LibraryBook(LibraryBookBuilder builder) {
         super(builder);
-        status = builder.status;
-        rating = builder.rating;
+
     }
 
     public static class LibraryBookBuilder extends AbstractBookBuilder<LibraryBookBuilder>{
-        int status;
-        int rating;
-
-        public LibraryBookBuilder status(int s){
-            status = s;
-            return this;
-        }
-
-        public LibraryBookBuilder rating(int s){
-            rating = s;
-            return this;
-        }
 
         @Override
         protected LibraryBookBuilder getThis() {
@@ -92,10 +78,33 @@ public class LibraryBook extends Book {
         }
 
         @Override
+        public LibraryBookBuilder rating(float i) {
+            rating = i;
+            return this;
+        }
+
+        @Override
+        public LibraryBookBuilder status(int s){
+            status = s;
+            return this;
+        }
+
+        @Override
         public LibraryBook build() {
             return new LibraryBook(this);
         }
     }
+
+    @Override
+    public float getRating() {
+        return this.rating;
+    }
+
+    @Override
+    public int getStatus() {
+        return this.status;
+    }
+
     @Override
     public String getTitle() {
 
@@ -146,4 +155,5 @@ public class LibraryBook extends Book {
     public int getFriendsNumber() {
         return 0;
     }
+
 }

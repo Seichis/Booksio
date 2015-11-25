@@ -2,7 +2,7 @@ package com.kmpdip.booksio.data.structure;
 
 import android.graphics.Bitmap;
 
-public abstract class  Book<B extends Book<B>>{
+public abstract class Book<B extends Book<B>> {
 
     protected final String title;
     protected final String description;
@@ -13,12 +13,13 @@ public abstract class  Book<B extends Book<B>>{
     protected final String date;
     protected final String userCategory;
     protected final Bitmap image;
-
-
+    protected final float rating;
+    protected final int status;
 
     protected final int friendsNumber;
 
-    public abstract static class AbstractBookBuilder <T extends AbstractBookBuilder<T>> {
+
+    public abstract static class AbstractBookBuilder<T extends AbstractBookBuilder<T>> {
         protected abstract T getThis();
 
         String title;
@@ -31,6 +32,8 @@ public abstract class  Book<B extends Book<B>>{
         String userCategory;
         int friendsNumber;
         Bitmap image;
+        float rating;
+        int status;
 
         public abstract T title(String s);
 
@@ -52,12 +55,15 @@ public abstract class  Book<B extends Book<B>>{
 
         public abstract T friendsNumber(int i);
 
+        public abstract T rating(float i);
+
+        public abstract T status(int s);
+
         public abstract Book build();
     }
 
 
-
-    protected Book(AbstractBookBuilder builder){
+    protected Book(AbstractBookBuilder builder) {
 
         title = builder.title;
         description = builder.description;
@@ -67,8 +73,10 @@ public abstract class  Book<B extends Book<B>>{
         genre = builder.genre;
         date = builder.date;
         userCategory = builder.userCategory;
-        image=builder.image;
-        friendsNumber=builder.friendsNumber;
+        image = builder.image;
+        friendsNumber = builder.friendsNumber;
+        rating = builder.rating;
+        status = builder.status;
     }
 
 
@@ -91,4 +99,8 @@ public abstract class  Book<B extends Book<B>>{
     public abstract Bitmap getImage();
 
     public abstract int getFriendsNumber();
+
+    public abstract float getRating();
+
+    public abstract int getStatus();
 }

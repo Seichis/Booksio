@@ -112,15 +112,16 @@ public class DBCDatabase extends SQLiteAssetHelper {
      * @return
      */
     public List<LibraryBook> getBooksDetails(int status) {
-        Bitmap bitmapImage = null;
         Cursor cur = getReadableDatabase().rawQuery("select 0 _id, * from Library where status=?", new String[] {String.valueOf(status)});
         List<LibraryBook> booksDetails = new ArrayList<>();
         LibraryBook.LibraryBookBuilder bookBuilder = new LibraryBook.LibraryBookBuilder();
         if (cur != null) {
             if (cur.moveToFirst()) {
                 do {
+                    Bitmap bitmapImage = null;
                     byte[] image = cur.getBlob(cur.getColumnIndex("image"));
                     if (image != null) {
+                        Log.i("dbimage", "image");
                         bitmapImage = BitmapFactory.decodeByteArray(image, 0, image.length);
                     }
                     LibraryBook book = bookBuilder.ID(cur.getString(cur.getColumnIndex("book_id")))
@@ -135,6 +136,7 @@ public class DBCDatabase extends SQLiteAssetHelper {
                             .build();
 
                     booksDetails.add(book);
+
                 } while (cur.moveToNext());
             }
         }

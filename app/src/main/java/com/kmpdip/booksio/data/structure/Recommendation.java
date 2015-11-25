@@ -76,6 +76,17 @@ public class Recommendation extends Book<Recommendation> {
         }
 
         @Override
+        public RecommendationBuilder rating(float i) {
+            return null;
+        }
+
+        @Override
+        public RecommendationBuilder status(int s){
+            status = s;
+            return this;
+        }
+
+        @Override
         public Recommendation build() {
             return new Recommendation(this);
         }
@@ -132,5 +143,14 @@ public class Recommendation extends Book<Recommendation> {
         return this.friendsNumber;
     }
 
+    @Override
+    public float getRating() {
+        return 0;
+    }
+
+    @Override
+    public int getStatus() {
+        return this.status;
+    }
 }
 
