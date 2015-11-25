@@ -7,12 +7,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.TextView;
 
 import com.kmpdip.booksio.MainActivity;
 import com.kmpdip.booksio.R;
 import com.kmpdip.booksio.cards.CardWrapper;
 import com.kmpdip.booksio.cards.MyExpandCard;
 import com.kmpdip.booksio.data.structure.Recommendation;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +31,7 @@ import it.gmariotti.cardslib.library.view.CardListView;
 public class RecommendationsFragment extends DialogFragment {
 
     RecommendationsFragmentListener recommendationsFragmentListener;
-
+    TextView textView;
     public interface RecommendationsFragmentListener{
         void initRecommendationCard();
         Card createRecommendationCard(Recommendation book);
@@ -48,13 +51,19 @@ public class RecommendationsFragment extends DialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-        return inflater.inflate(R.layout.fragment_recommendations, container, false);
+        View view = inflater.inflate(R.layout.fragment_recommendations, container, false);
+        textView = (TextView) view.findViewById(R.id.criterion);
+        return view;
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        if (MainActivity.getInstance().mode.equals("user_class")){
+            textView.setText("All genres");
+        }else {
+            textView.setText("Genre: "+MainActivity.genreName);
+        }
     }
 
 }

@@ -70,11 +70,11 @@ public class MyCardHeader extends CardHeader implements ICard{
         titleTextView.setText(String.valueOf(this.book.getTitle()));
         authorTextView.setText(String.valueOf("By : " + this.book.getAuthor()));
         numberFriendsTextView.setText(String.valueOf(this.book.getFriendsNumber()));
-        genreTextView.setText(String.valueOf("Genres : " + this.book.getGenre()));
+        genreTextView.setText(String.valueOf("Tags : " + this.book.getGenre()));
         if(book.getImage()!=null){
             cover.setImageBitmap(book.getImage());
         }else{
-            cover.setImageDrawable(context.getResources().getDrawable(R.drawable.book1));
+            cover.setImageDrawable(context.getResources().getDrawable(R.drawable.book2));
         }
 
         ratingBar.setStepSize((float) 1.0);
@@ -109,6 +109,12 @@ public class MyCardHeader extends CardHeader implements ICard{
             }
         });
 
+//        view.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                setInnerLayout(R.layout.inner_card_rec);
+//            }
+//        });
     }
 
 
@@ -125,7 +131,7 @@ public class MyCardHeader extends CardHeader implements ICard{
         if(book.getImage()!= null) {
             cover.setImageBitmap(book.getImage());
         }else{
-            cover.setImageDrawable(context.getResources().getDrawable(R.drawable.book1));
+            cover.setImageDrawable(context.getResources().getDrawable(R.drawable.book2));
         }
         ratingBar.setStepSize((float) 1.0);
 

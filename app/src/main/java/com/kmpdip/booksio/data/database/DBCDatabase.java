@@ -44,7 +44,7 @@ public class DBCDatabase extends SQLiteAssetHelper {
                         bookList.add(book_id); // "Title" is the field name(column) of the Table
                         counter++;
                     }
-                } while (c.moveToNext() && counter < 5);
+                } while (c.moveToNext() && counter < 1);
             }
         }
         /////////////////
@@ -146,7 +146,8 @@ public class DBCDatabase extends SQLiteAssetHelper {
         boolean inLibrary;
         ArrayList bookGenreList = new ArrayList();
         Cursor c = getReadableDatabase().
-                rawQuery("select 0 _id, book_id from Books where dk5 LIKE '['" + genre + "%' OR dk5 LIKE '%,'" + genre + "%'", null);
+                rawQuery("select 0 _id, book_id from Books where dk5 LIKE \"%'"+ genre + "%\"", null);
+        Log.i("genrecount", String.valueOf(c.getCount()));
         if (c != null) {
             if (c.moveToFirst()) {
                 do {
@@ -156,7 +157,7 @@ public class DBCDatabase extends SQLiteAssetHelper {
                         bookGenreList.add(book_id); // "Title" is the field name(column) of the Table
                         counter++;
                     }
-                } while (c.moveToNext() && counter < 5);
+                } while (c.moveToNext() && counter < 1);
             }
         }
         return bookGenreList;

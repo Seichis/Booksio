@@ -3,10 +3,13 @@ package com.kmpdip.booksio.cards;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.HorizontalScrollView;
 import android.widget.TextView;
 
 import com.kmpdip.booksio.R;
 import com.kmpdip.booksio.data.structure.Book;
+
+import org.w3c.dom.Text;
 
 import it.gmariotti.cardslib.library.internal.CardExpand;
 
@@ -23,6 +26,7 @@ public class MyExpandCard extends CardExpand implements ICard {
         super(context);
         if (book.getClass().getSimpleName().equals("Recommendation")){
             super.setInnerLayout(R.layout.inner_card_rec);
+
         }else if (book.getClass().getSimpleName().equals("LibraryBook")){
             super.setInnerLayout(R.layout.inner_card_library);
     }
@@ -45,8 +49,13 @@ public class MyExpandCard extends CardExpand implements ICard {
 
     @Override
     public void setRecommendationCardView(View view) {
+
         TextView descriptionTextView = (TextView) view.findViewById(R.id.description);
+        TextView date = (TextView) view.findViewById(R.id.date);
         descriptionTextView.setText(String.valueOf(book.getDescription()));
+        descriptionTextView.requestFocus();
+        date.setText("Dato: " + book.getDate());
+        //view.requestFocus();
     }
 
     @Override

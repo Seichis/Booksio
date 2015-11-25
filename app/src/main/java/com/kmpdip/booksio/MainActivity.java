@@ -68,10 +68,14 @@ public class MainActivity extends AppCompatActivity
     public Context context;
     public String userClass;
     public DatabaseTask task;
+    public DatabaseTaskGenres taskGenres;
+    public static String genre="";
+    public static String genreName="";
     ParseUser currentUser;
     FacebookUserData fbUser;
     BookFromXml bookFromXml = BookFromXml.getInstance();
     List<Recommendation> recommendations;
+    List<Recommendation> recommendationsByGenre;
     List<LibraryBook> libraryBooks = new ArrayList<>();
     // Initialize fragment resources
     private final Handler mHandler = new Handler() {
@@ -86,6 +90,7 @@ public class MainActivity extends AppCompatActivity
     ParseOperations mParseOperations;
     FacebookOperations mFacebookOperations;
     TextView mTextView;
+    public String mode="user_class";
     UserToClassify userToClassify;
     CardArrayAdapter mCardArrayAdapterRec;
     //this is the class that the user belongs to
@@ -174,7 +179,9 @@ public class MainActivity extends AppCompatActivity
         mTextView = (TextView) findViewById(R.id.text_view_1);
 
         task = new DatabaseTask();
-        //task.execute();
+        task.execute();
+
+
         Log.i("Async", String.valueOf(task.getStatus()));
     }
 
@@ -276,25 +283,54 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-
+        genreName = (String) item.getTitle();
         if (id == R.id.nav_1) {
             // Handle the camera action
+            genre = "1";
+
+            mode = "genre";
+            taskGenres = new DatabaseTaskGenres();
+            taskGenres.execute();
         } else if (id == R.id.nav_2) {
+            genre = "2";
+            taskGenres = new DatabaseTaskGenres();
+            taskGenres.execute();
 
         } else if (id == R.id.nav_3) {
-
+            genre = "3";
+            mode = "genre";
+            taskGenres = new DatabaseTaskGenres();
+            taskGenres.execute();
         } else if (id == R.id.nav_4) {
-
+            genre = "4";
+            mode = "genre";
+            taskGenres = new DatabaseTaskGenres();
+            taskGenres.execute();
         } else if (id == R.id.nav_5) {
-
+            genre = "5";
+            mode = "genre";
+            taskGenres = new DatabaseTaskGenres();
+            taskGenres.execute();
         } else if (id == R.id.nav_6) {
-
+            genre = "6";
+            mode = "genre";
+            taskGenres = new DatabaseTaskGenres();
+            taskGenres.execute();
         } else if (id == R.id.nav_7){
-
+            genre = "7";
+            mode = "genre";
+            taskGenres = new DatabaseTaskGenres();
+            taskGenres.execute();
         } else if (id == R.id.nav_8){
-
+            genre = "8";
+            mode = "genre";
+            taskGenres = new DatabaseTaskGenres();
+            taskGenres.execute();
         } else if (id == R.id.nav_9){
-
+            genre = "9";
+            mode = "genre";
+            taskGenres = new DatabaseTaskGenres();
+            taskGenres.execute();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -316,9 +352,16 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void initRecommendationCard() {
-
-        for (Recommendation rec : recommendations) {
-            myRecCardlist.add(createRecommendationCard(rec));
+        if (mode.equals("user_class")) {
+            myRecCardlist.clear();
+            for (Recommendation rec : recommendations) {
+                myRecCardlist.add(createRecommendationCard(rec));
+            }
+        }else if (mode.equals("genre")) {
+            myRecCardlist.clear();
+            for (Recommendation rec : recommendationsByGenre) {
+                myRecCardlist.add(createRecommendationCard(rec));
+            }
         }
 
         //Set the arrayAdapter
@@ -343,7 +386,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void run() {
                 DBCDatabase db = new DBCDatabase(MainActivity.getInstance().getApplicationContext());
-                libraryBooks = db.getBooksDetails(1);
+                libraryBooks = db.getBooksDetails(2);
                 db.close();
                 mHandler.sendEmptyMessage(0);
             }
@@ -418,7 +461,11 @@ public class MainActivity extends AppCompatActivity
             task.cancel(false);
             task = null;
             task = new DatabaseTask();
-            //task.execute();
+            task.execute();
+            //taskGenres.cancel(false);
+            //taskGenres = null;
+            //taskGenres = new DatabaseTaskGenres();
+            //taskGenres.execute();
         }
     }
 
@@ -443,6 +490,33 @@ public class MainActivity extends AppCompatActivity
                 Recommendation book = bookFromXml.createBookFromXMLResponse(response.get(j));
                 recommendations.add(book);
                 Log.i("BOOK", (String) books.get(j));
+            }
+
+            return response;
+        }
+    }
+
+    public class DatabaseTaskGenres extends AsyncTask {
+
+        @Override
+        protected void onPostExecute(Object response) {
+            super.onPostExecute(response);
+            MainActivity.getInstance().createFragments();
+            initRecommendationCard();
+            MainActivity.getInstance().loadLibraryBooksFromDatabase();
+        }
+
+        @Override
+        protected List<HashMap<String, String>> doInBackground(Object[] params) {
+            recommendationsByGenre = new ArrayList<>();
+            DBCDatabase db = new DBCDatabase(MainActivity.getInstance().getApplicationContext());
+            ArrayList books = db.getBooksByGenre(genre);
+            List<HashMap<String, String>> response = new ArrayList<>();
+            for (int j = 0; j < books.size(); j++) {
+                response.add(bookFromXml.consumeWebService((String) books.get(j)));
+                Recommendation book = bookFromXml.createBookFromXMLResponse(response.get(j));
+                recommendationsByGenre.add(book);
+                Log.i("BOOKBYGENRE", (String) books.get(j));
             }
 
             return response;
