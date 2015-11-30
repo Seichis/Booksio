@@ -60,9 +60,9 @@ public class RecommendationsFragment extends DialogFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if (MainActivity.getInstance().mode.equals("user_class")){
-            textView.setText("All genres");
+            textView.setText("Alle genrer");
         }else {
-            textView.setText("Genre: "+MainActivity.genreName);
+            textView.setText(MainActivity.genreName);
         }
     }
 

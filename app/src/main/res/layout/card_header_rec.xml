@@ -47,7 +47,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="By: "
+        android:text="Af: "
         android:id="@+id/author"
         android:layout_below="@+id/cover_img"
         app:layout_marginLeftPercent="5%"
@@ -88,7 +88,7 @@
         android:layout_height="wrap_content"
         android:layout_alignBottom="@id/friends_number"
         android:layout_alignParentRight="true"
-        app:layout_marginRightPercent="8%"
+        app:layout_marginRightPercent="5%"
         android:src="@drawable/messenger_bubble_large_blue"
         android:id="@+id/friends_img" />
 
@@ -97,7 +97,7 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:id="@+id/rate_tv"
-        android:text="Read it? Rate it!"
+        android:text="Har du læst den? Bedøm den!"
         android:layout_below="@+id/division_line"
         app:layout_marginTopPercent="2%"
         android:textAlignment="center"

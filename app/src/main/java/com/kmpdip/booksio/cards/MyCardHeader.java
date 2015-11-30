@@ -38,7 +38,7 @@ public class MyCardHeader extends CardHeader implements ICard{
             super.setInnerLayout(R.layout.card_header_rec);
             this.book = book;
         }else if (book.getClass().getSimpleName().equals("LibraryBook")){
-            super.setInnerLayout(R.layout.card_header_library_share);
+            super.setInnerLayout(R.layout.card_header_library);
             this.book =book;
         }
         this.context = context;
@@ -71,7 +71,7 @@ public class MyCardHeader extends CardHeader implements ICard{
         TextView genreTextView = (TextView) view.findViewById(R.id.genres);
 
         titleTextView.setText(String.valueOf(this.book.getTitle()));
-        authorTextView.setText(String.valueOf("By : " + this.book.getAuthor()));
+        authorTextView.setText(String.valueOf("Af : " + this.book.getAuthor()));
         numberFriendsTextView.setText(String.valueOf(this.book.getFriendsNumber()));
         genreTextView.setText(String.valueOf("Tags : " + this.book.getGenre()));
         if(this.book.getImage()!=null){
@@ -124,14 +124,14 @@ public class MyCardHeader extends CardHeader implements ICard{
     @Override
     public void setLibraryCardView(View view) {
         //final DBCDatabase db = new DBCDatabase(context);
-        ImageView cover = (ImageView) view.findViewById(R.id.cover_img_share);
-        RatingBar ratingBar = (RatingBar) view.findViewById(R.id.ratingBar_share);
-        TextView titleTextView = (TextView) view.findViewById(R.id.title_share);
-        TextView authorTextView = (TextView) view.findViewById(R.id.author_share);
-        Button shareButton = (Button) view.findViewById(R.id.share_button);
+        ImageView cover = (ImageView) view.findViewById(R.id.cover_img);
+        RatingBar ratingBar = (RatingBar) view.findViewById(R.id.ratingBar);
+        TextView titleTextView = (TextView) view.findViewById(R.id.title);
+        TextView authorTextView = (TextView) view.findViewById(R.id.author);
+        Button shareButton = (Button) view.findViewById(R.id.cart_button);
 
         titleTextView.setText(this.book.getTitle());
-        authorTextView.setText("By : " + this.book.getAuthor());
+        authorTextView.setText("Af : " + this.book.getAuthor());
         if(book.getImage()!= null) {
             cover.setImageBitmap(this.book.getImage());
         }else{
@@ -145,10 +145,10 @@ public class MyCardHeader extends CardHeader implements ICard{
             public void onClick(View buttonView) {
                 Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
                 sharingIntent.setType("text/plain");
-                String shareBody = "I think you will find this interesting: " + book.getTitle() + " by " + book.getAuthor() + ". Check it on DBC App!";
-                sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "DBC - Check this book!");
+                String shareBody = "Jeg tror, at du vil finde denne interessante: " + book.getTitle() + " af " + book.getAuthor() + ". Tjek den på DBC App!";
+                sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "DBC - Tjek denne bog!");
                 sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
-                context.startActivity(Intent.createChooser(sharingIntent, "Share via"));
+                context.startActivity(Intent.createChooser(sharingIntent, "Del via"));
             }
         });
 

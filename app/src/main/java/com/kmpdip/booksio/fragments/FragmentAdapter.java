@@ -7,7 +7,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 ;
 
 public class FragmentAdapter extends FragmentPagerAdapter {
-    private final String[] TITLES = {"Recommendations", "Library Wishlist"};
+    private final String[] TITLES = {"Forslag", "Min Samling"};
     LibraryFragment mLibraryFragment;
     RecommendationsFragment mRecommendationsFragment;
     LibraryHasReadFragment mLibraryHasReadFragment;

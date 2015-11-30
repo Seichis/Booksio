@@ -1,12 +1,12 @@
 <resources>
-    <string name="app_name">Booksio</string>
+    <string name="app_name">DBC App</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
-    <string name="action_settings">Settings</string>
-    <string name="action_recommendations">Recommendations</string>
-    <string name="action_library">My Library</string>
+    <string name="action_settings">Indstillinger</string>
+    <string name="action_recommendations">Forslag</string>
+    <string name="action_library">Mit Bibliotek</string>
 
     <string name="parse_app_id">acjHnevS72Hzjqvg2LjVo7UdzOZJkArRcLJD43VT</string>
     <string name="parse_client_key">fjUqBb5QPvhSVVBpI0NYJZ3kUN9r1S3IKF7zhmhW</string>
