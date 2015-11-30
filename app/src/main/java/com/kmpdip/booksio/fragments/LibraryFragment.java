@@ -6,9 +6,7 @@ import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 
-import com.kmpdip.booksio.MainActivity;
 import com.kmpdip.booksio.R;
 import com.kmpdip.booksio.data.structure.LibraryBook;
 
@@ -39,7 +37,9 @@ public class LibraryFragment extends DialogFragment {
 
     public interface LibraryFragmentListener {
         void loadLibraryBooksFromDatabase();
+
         Card createLibraryCard(LibraryBook book);
+
         void initLibraryCards();
     }
 

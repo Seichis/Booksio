@@ -38,6 +38,7 @@ import com.kmpdip.booksio.data.structure.UserToClassify;
 import com.kmpdip.booksio.facebookoperations.FacebookOperations;
 import com.kmpdip.booksio.fragments.FragmentAdapter;
 import com.kmpdip.booksio.fragments.LibraryFragment;
+import com.kmpdip.booksio.fragments.LibraryHasReadFragment;
 import com.kmpdip.booksio.fragments.RecommendationsFragment;
 import com.kmpdip.booksio.onlineoperations.BookFromXml;
 import com.kmpdip.booksio.parseoperations.ParseOperations;
@@ -61,7 +62,7 @@ import weka.core.Instance;
 import weka.core.Instances;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, RecommendationsFragment.RecommendationsFragmentListener, LibraryFragment.LibraryFragmentListener {
+        implements NavigationView.OnNavigationItemSelectedListener, RecommendationsFragment.RecommendationsFragmentListener, LibraryFragment.LibraryFragmentListener{
     public static String genre = "";
     public static String genreName = "";
     private static MainActivity mainActivity;
@@ -387,7 +388,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void run() {
                 DBCDatabase db = new DBCDatabase(MainActivity.getInstance().getApplicationContext());
-                libraryBooks = db.getBooksDetails(2);
+                libraryBooks = db.getBooksDetails(1);
                 db.close();
                 mHandler.sendEmptyMessage(0);
             }
@@ -418,7 +419,6 @@ public class MainActivity extends AppCompatActivity
         CardArrayAdapter mCardArrayAdapter = new CardArrayAdapter(this, myCardlist);
         CardListView cardListView = (CardListView) this.findViewById(R.id.myListLibrary);
 
-        //animCardArrayAdapter.setInitialDelayMillis(500);
         if (cardListView != null) {
             cardListView.setAdapter(mCardArrayAdapter);
         }
@@ -428,7 +428,8 @@ public class MainActivity extends AppCompatActivity
         String predictedClass = "";
         String[] featureHeader = Constants.LIST_FEATURES;
         Instances userInstance = FeatureGenerator.createEmptyInstances(featureHeader, false); // makeClassLabel);
-// Calculate features (without class label)
+
+        // Calculate features (without class label)
         HashMap<String, Float> featureMapUser =
                 FeatureGenerator.processUser(user);
 
@@ -436,7 +437,7 @@ public class MainActivity extends AppCompatActivity
         int attributeSize = featureMapUser.size() + 1;
         Instance instance = new Instance(attributeSize); // including class classLabel
 
-        // Filling features for accelerometer
+        // Filling features of use
         for (String feature : featureMapUser.keySet()) {
             float value = featureMapUser.get(feature);
             Attribute attr = userInstance.attribute(feature);
@@ -463,10 +464,6 @@ public class MainActivity extends AppCompatActivity
             task = null;
             task = new DatabaseTask();
             task.execute();
-            //taskGenres.cancel(false);
-            //taskGenres = null;
-            //taskGenres = new DatabaseTaskGenres();
-            //taskGenres.execute();
         }
     }
 

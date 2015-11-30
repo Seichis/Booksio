@@ -7,14 +7,16 @@ import android.support.v4.app.FragmentPagerAdapter;
 ;
 
 public class FragmentAdapter extends FragmentPagerAdapter {
-    private final String[] TITLES = {"Recommendations", "Library"};
+    private final String[] TITLES = {"Recommendations", "Library Wishlist"};
     LibraryFragment mLibraryFragment;
     RecommendationsFragment mRecommendationsFragment;
+    LibraryHasReadFragment mLibraryHasReadFragment;
 
     public FragmentAdapter(FragmentManager fm) {
         super(fm);
         this.mLibraryFragment = new LibraryFragment();
         this.mRecommendationsFragment = new RecommendationsFragment();
+        this.mLibraryHasReadFragment=new LibraryHasReadFragment();
     }
 
     @Override
@@ -30,6 +32,8 @@ public class FragmentAdapter extends FragmentPagerAdapter {
                 return this.mRecommendationsFragment;
             case 1:
                 return this.mLibraryFragment;
+//            case 2:
+//                return this.mLibraryHasReadFragment;
             default:
                 break;
         }

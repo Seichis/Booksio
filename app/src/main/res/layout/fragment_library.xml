@@ -12,10 +12,12 @@
         android:paddingTop="14dip"
         android:text="Mit Bibliotek"
         android:textColor="#FFFFFFFF"
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        android:id="@+id/wishlist_head"/>
 
     <it.gmariotti.cardslib.library.view.CardListView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/myListLibrary"/>
+        android:id="@+id/myListLibrary"
+        android:layout_below="@+id/wishlist_head"/>
 </RelativeLayout>
