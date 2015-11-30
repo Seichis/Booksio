@@ -8,15 +8,9 @@ import android.support.v4.app.FragmentPagerAdapter;
 
 public class FragmentAdapter extends FragmentPagerAdapter {
     private final String[] TITLES = {"Forslag", "Min Samling"};
-    LibraryFragment mLibraryFragment;
-    RecommendationsFragment mRecommendationsFragment;
-    LibraryHasReadFragment mLibraryHasReadFragment;
 
     public FragmentAdapter(FragmentManager fm) {
         super(fm);
-        this.mLibraryFragment = new LibraryFragment();
-        this.mRecommendationsFragment = new RecommendationsFragment();
-        this.mLibraryHasReadFragment=new LibraryHasReadFragment();
     }
 
     @Override
@@ -29,11 +23,11 @@ public class FragmentAdapter extends FragmentPagerAdapter {
         // TODO Auto-generated method stub
         switch (position) {
             case 0:
-                return this.mRecommendationsFragment;
+                return new RecommendationsFragment();
             case 1:
-                return this.mLibraryFragment;
+                return new LibraryFragment();
 //            case 2:
-//                return this.mLibraryHasReadFragment;
+//                return new LibraryHasReadFragment();
             default:
                 break;
         }

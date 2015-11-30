@@ -8,9 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -21,7 +19,6 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.TextView;
 
 import com.astuetz.PagerSlidingTabStrip;
@@ -62,7 +59,10 @@ import weka.core.Instance;
 import weka.core.Instances;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, RecommendationsFragment.RecommendationsFragmentListener, LibraryFragment.LibraryFragmentListener{
+        implements NavigationView.OnNavigationItemSelectedListener,
+        RecommendationsFragment.RecommendationsFragmentListener,
+        LibraryFragment.LibraryFragmentListener{
+
     public static String genre = "";
     public static String genreName = "";
     private static MainActivity mainActivity;
@@ -81,12 +81,16 @@ public class MainActivity extends AppCompatActivity
     List<Recommendation> recommendationsByGenre;
     List<LibraryBook> libraryBooks = new ArrayList<>();
     // Initialize fragment resources
-    private final Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            initLibraryCards();
-        }
-    };
+    Handler mHandler = new Handler();
+// {
+//        @Override
+//        public void handleMessage(Message msg) {
+//            initLibraryCards();
+//            initLibraryHasReadCards();
+//        }
+//
+//    };
+    List<LibraryBook> libraryHasReadBooks = new ArrayList<>();
     Random random;
     SharedPreferences preferences;
     SharedPreferences.Editor editor;
@@ -137,16 +141,6 @@ public class MainActivity extends AppCompatActivity
         userClass = getPredictUserClass(userToClassify);
 
         setSupportActionBar(toolbar);
-
-
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -389,8 +383,17 @@ public class MainActivity extends AppCompatActivity
             public void run() {
                 DBCDatabase db = new DBCDatabase(MainActivity.getInstance().getApplicationContext());
                 libraryBooks = db.getBooksDetails(1);
+                libraryHasReadBooks = db.getBooksDetails(2);
+                Log.i("Books like","  " + libraryBooks.size());
+                Log.i("Books to read", "  " + libraryHasReadBooks.size());
                 db.close();
-                mHandler.sendEmptyMessage(0);
+                mHandler.post((new Runnable() {
+                    @Override
+                    public void run() {
+                        initLibraryCards();
+                    }
+                }));
+//                        .sendEmptyMessage(0);
             }
         };
 
@@ -424,6 +427,22 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+//    @Override
+//    public void initLibraryHasReadCards() {
+//        List<Card> mylibraryHasReadCardlist = new ArrayList<>();
+//
+//        for (LibraryBook lb : libraryHasReadBooks) {
+//            mylibraryHasReadCardlist.add(createLibraryHasReadCard(lb));
+//        }
+//
+//        //Set the arrayAdapter
+//        CardArrayAdapter mLibraryHasReadCardArrayAdapter = new CardArrayAdapter(this, mylibraryHasReadCardlist);
+//        CardListView cardLibraryHasReadListView = (CardListView) this.findViewById(R.id.my_list_library_has_read);
+//
+//        if (cardLibraryHasReadListView != null) {
+//            cardLibraryHasReadListView.setAdapter(mLibraryHasReadCardArrayAdapter);
+//        }
+//    }
     private String getPredictUserClass(UserToClassify user) {
         String predictedClass = "";
         String[] featureHeader = Constants.LIST_FEATURES;
@@ -466,6 +485,14 @@ public class MainActivity extends AppCompatActivity
             task.execute();
         }
     }
+
+//    @Override
+//    public Card createLibraryHasReadCard(LibraryBook book) {
+//        CardWrapper cardLibraryHasReadWrapper = new CardWrapper(this, book);
+//        return cardLibraryHasReadWrapper;
+//    }
+
+
 
     public class DatabaseTask extends AsyncTask {
         private ProgressDialog dialog = new ProgressDialog(MainActivity.this);

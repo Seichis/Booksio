@@ -10,7 +10,7 @@
         android:paddingBottom="14dip"
         android:paddingLeft="8dip"
         android:paddingTop="14dip"
-        android:text="Mit Bibliotek"
+        android:text="Jeg ønsker at læse"
         android:textColor="#FFFFFFFF"
         android:textSize="18sp"
         android:id="@+id/wishlist_head"/>

@@ -17,34 +17,31 @@ import it.gmariotti.cardslib.library.internal.Card;
  */
 public class LibraryHasReadFragment extends DialogFragment {
 
-    LibraryHasReadFragmentListener libraryHasReadFragmentListener;
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        try {
-            libraryHasReadFragmentListener = (LibraryHasReadFragmentListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString());
-        }
-    }
+//    LibraryHasReadFragmentListener libraryHasReadFragmentListener;
+//
+//    @Override
+//    public void onAttach(Activity activity) {
+//        super.onAttach(activity);
+//        try {
+//            libraryHasReadFragmentListener = (LibraryHasReadFragmentListener) activity;
+//        } catch (ClassCastException e) {
+//            throw new ClassCastException(activity.toString());
+//        }
+//    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View rootView = inflater.inflate(R.layout.fragmen_has_read, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_has_read, container, false);
 
         return rootView;
     }
 
-    public interface LibraryHasReadFragmentListener {
-        void loadLibraryHasReadBooksFromDatabase();
-
-        Card createLibraryHasReadCard(LibraryBook book);
-
-        void initLibraryHasReadCards();
-    }
+//    public interface LibraryHasReadFragmentListener {
+//        Card createLibraryHasReadCard(LibraryBook book);
+//        void initLibraryHasReadCards();
+//    }
 
 
 }
