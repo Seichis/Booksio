@@ -1,5 +1,6 @@
 package com.kmpdip.booksio;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -61,6 +62,8 @@ import weka.core.Instances;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, RecommendationsFragment.RecommendationsFragmentListener, LibraryFragment.LibraryFragmentListener {
+    public static String genre = "";
+    public static String genreName = "";
     private static MainActivity mainActivity;
     private static String DB_PATH = "/data/data/com.kmpdip.booksio/database/";
     private static String DB_NAME = "/dbcdatabase.db";
@@ -69,8 +72,7 @@ public class MainActivity extends AppCompatActivity
     public String userClass;
     public DatabaseTask task;
     public DatabaseTaskGenres taskGenres;
-    public static String genre="";
-    public static String genreName="";
+    public String mode = "user_class";
     ParseUser currentUser;
     FacebookUserData fbUser;
     BookFromXml bookFromXml = BookFromXml.getInstance();
@@ -90,7 +92,6 @@ public class MainActivity extends AppCompatActivity
     ParseOperations mParseOperations;
     FacebookOperations mFacebookOperations;
     TextView mTextView;
-    public String mode="user_class";
     UserToClassify userToClassify;
     CardArrayAdapter mCardArrayAdapterRec;
     //this is the class that the user belongs to
@@ -316,17 +317,17 @@ public class MainActivity extends AppCompatActivity
             mode = "genre";
             taskGenres = new DatabaseTaskGenres();
             taskGenres.execute();
-        } else if (id == R.id.nav_7){
+        } else if (id == R.id.nav_7) {
             genre = "7";
             mode = "genre";
             taskGenres = new DatabaseTaskGenres();
             taskGenres.execute();
-        } else if (id == R.id.nav_8){
+        } else if (id == R.id.nav_8) {
             genre = "8";
             mode = "genre";
             taskGenres = new DatabaseTaskGenres();
             taskGenres.execute();
-        } else if (id == R.id.nav_9){
+        } else if (id == R.id.nav_9) {
             genre = "9";
             mode = "genre";
             taskGenres = new DatabaseTaskGenres();
@@ -357,7 +358,7 @@ public class MainActivity extends AppCompatActivity
             for (Recommendation rec : recommendations) {
                 myRecCardlist.add(createRecommendationCard(rec));
             }
-        }else if (mode.equals("genre")) {
+        } else if (mode.equals("genre")) {
             myRecCardlist.clear();
             for (Recommendation rec : recommendationsByGenre) {
                 myRecCardlist.add(createRecommendationCard(rec));
@@ -470,10 +471,26 @@ public class MainActivity extends AppCompatActivity
     }
 
     public class DatabaseTask extends AsyncTask {
+        private ProgressDialog dialog = new ProgressDialog(MainActivity.this);
+
+        /** progress dialog to show user that the backup is processing. */
+        /**
+         * application context.
+         */
+        @Override
+        protected void onPreExecute() {
+            if (mCardArrayAdapterRec.isEmpty()) {
+                this.dialog.setMessage("Please wait");
+                this.dialog.show();
+            }
+        }
 
         @Override
         protected void onPostExecute(Object response) {
             super.onPostExecute(response);
+            if (dialog.isShowing()) {
+                dialog.dismiss();
+            }
             MainActivity.getInstance().createFragments();
             initRecommendationCard();
             MainActivity.getInstance().loadLibraryBooksFromDatabase();
@@ -497,10 +514,24 @@ public class MainActivity extends AppCompatActivity
     }
 
     public class DatabaseTaskGenres extends AsyncTask {
+        private ProgressDialog dialog = new ProgressDialog(MainActivity.this);
+
+        /** progress dialog to show user that the backup is processing. */
+        /**
+         * application context.
+         */
+        @Override
+        protected void onPreExecute() {
+            this.dialog.setMessage("Please wait");
+            this.dialog.show();
+        }
 
         @Override
         protected void onPostExecute(Object response) {
             super.onPostExecute(response);
+            if (dialog.isShowing()) {
+                dialog.dismiss();
+            }
             MainActivity.getInstance().createFragments();
             initRecommendationCard();
             MainActivity.getInstance().loadLibraryBooksFromDatabase();

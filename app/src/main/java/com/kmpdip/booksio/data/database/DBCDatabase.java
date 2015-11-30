@@ -44,7 +44,7 @@ public class DBCDatabase extends SQLiteAssetHelper {
                         bookList.add(book_id); // "Title" is the field name(column) of the Table
                         counter++;
                     }
-                } while (c.moveToNext() && counter < 1);
+                } while (c.moveToNext() && counter < 10);
             }
         }
         /////////////////
@@ -159,7 +159,7 @@ public class DBCDatabase extends SQLiteAssetHelper {
                         bookGenreList.add(book_id); // "Title" is the field name(column) of the Table
                         counter++;
                     }
-                } while (c.moveToNext() && counter < 1);
+                } while (c.moveToNext() && counter < 10);
             }
         }
         return bookGenreList;
