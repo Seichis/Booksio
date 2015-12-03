@@ -143,12 +143,12 @@ public class DBCDatabase extends SQLiteAssetHelper {
         return booksDetails;
     }
 
-    public ArrayList getBooksByGenre(String genre){
+    public ArrayList getBooksByGenre(String genre, String userClass){
         int counter = 0;
         boolean inLibrary;
         ArrayList bookGenreList = new ArrayList();
         Cursor c = getReadableDatabase().
-                rawQuery("select 0 _id, book_id from Books where dk5 LIKE \"%'"+ genre + "%\"", null);
+                rawQuery("select 0 _id, book_id from Books where user_class LIKE '%" + userClass + "%' AND dk5 LIKE \"%'"+ genre + "%\"", null);
         Log.i("genrecount", String.valueOf(c.getCount()));
         if (c != null) {
             if (c.moveToFirst()) {

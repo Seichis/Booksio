@@ -565,7 +565,7 @@ public class MainActivity extends AppCompatActivity
         protected List<HashMap<String, String>> doInBackground(Object[] params) {
             recommendationsByGenre = new ArrayList<>();
             DBCDatabase db = new DBCDatabase(MainActivity.getInstance().getApplicationContext());
-            ArrayList books = db.getBooksByGenre(genre);
+            ArrayList books = db.getBooksByGenre(genre, userClass);
             List<HashMap<String, String>> response = new ArrayList<>();
             for (int j = 0; j < books.size(); j++) {
                 response.add(bookFromXml.consumeWebService((String) books.get(j)));
